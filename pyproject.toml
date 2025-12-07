@@ -1,0 +1,18 @@
+[project]
+name = "churn_predictions"
+version = "0.1.0"
+description = "Churn prediction analysis for Kolecto"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "pandas",
+    "numpy",
+    "scikit-learn",
+    "xgboost",
+    "lightgbm",
+    "matplotlib",
+    "seaborn",
+    "pydantic",
+    "jupyter",
+    "shap"
+]
