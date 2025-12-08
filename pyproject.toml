@@ -14,5 +14,6 @@ dependencies = [
     "seaborn",
     "pydantic",
     "jupyter",
-    "shap"
+    "shap",
+    "notebook (>=7.5.0,<8.0.0)"
 ]
