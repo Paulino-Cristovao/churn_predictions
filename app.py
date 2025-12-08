@@ -21,43 +21,94 @@ def load_models():
     """Load all trained models"""
     models = {}
     
-    # Load tree-based models (assuming they're pickled)
+    # Load tree-based models (if they exist)
     try:
-        with open('../results/models/logistic_regression.pkl', 'rb') as f:
+        with open('results/models/logistic_regression.pkl', 'rb') as f:
             models['Logistic Regression'] = pickle.load(f)
-    except:
+            print("✅ Loaded Logistic Regression")
+    except Exception as e:
+        print(f"⚠️  Logistic Regression not available: {e}")
         models['Logistic Regression'] = None
     
     try:
-        with open('../results/models/xgboost.pkl', 'rb') as f:
+        with open('results/models/xgboost.pkl', 'rb') as f:
             models['XGBoost'] = pickle.load(f)
-    except:
+            print("✅ Loaded XGBoost")
+    except Exception as e:
+        print(f"⚠️  XGBoost not available: {e}")
         models['XGBoost'] = None
     
     try:
-        with open('../results/models/lightgbm.pkl', 'rb') as f:
+        with open('results/models/lightgbm.pkl', 'rb') as f:
             models['LightGBM'] = pickle.load(f)
-    except:
+            print("✅ Loaded LightGBM")
+    except Exception as e:
+        print(f"⚠️  LightGBM not available: {e}")
         models['LightGBM'] = None
     
     # Load deep learning models
     try:
         device = torch.device('cpu')
-        gru = GRUChurnModel(20, 64, 2, 0.3).to(device)  # Adjust input_size as needed
-        gru.load_state_dict(torch.load('../results/models/lstm_best_model.pt', map_location=device))
+        # GRU was trained with fc1 output size 16 (not 32 as in current gru_model.py)
+        # Load model with strict=False to handle minor architecture differences
+        gru = GRUChurnModel(19, 64, 2, 0.3).to(device)
+        state_dict = torch.load('results/models/lstm_best_model.pt', map_location=device)
+        # Modify fc1 layer to match saved model (16 instead of 32)
+        gru.fc1 = torch.nn.Linear(64, 16).to(device)
+        gru.fc2 = torch.nn.Linear(16, 1).to(device)
+        gru.load_state_dict(state_dict)
         gru.eval()
         models['LSTM/GRU'] = gru
+        print("✅ Loaded LSTM/GRU")
     except Exception as e:
-        print(f"Error loading GRU: {e}")
+        print(f"⚠️  LSTM/GRU not available: {e}")
         models['LSTM/GRU'] = None
     
     try:
-        trans = TransformerChurnModel(20, 64, 4, 2, 0.3).to(device)
-        trans.load_state_dict(torch.load('../results/models/transformer_best_model.pt', map_location=device))
+        device = torch.device('cpu')
+        # Transformer was trained with input_projection (not input_proj) and dim_feedforward=128
+        # Import and create custom Transformer loader
+        import torch.nn as nn
+        from models.transformer_model import PositionalEncoding
+        
+        class OldTransformerChurnModel(nn.Module):
+            """Match the architecture of the saved transformer model"""
+            def __init__(self, input_size, d_model=64, nhead=4, num_layers=2, dropout=0.3):
+                super().__init__()
+                self.d_model = d_model
+                self.input_projection = nn.Linear(input_size, d_model)  # Note: input_projection not input_proj
+                self.pos_encoder = PositionalEncoding(d_model)
+                encoder_layer = nn.TransformerEncoderLayer(
+                    d_model=d_model, nhead=nhead,
+                    dim_feedforward=d_model * 2,  # 128 not 256
+                    dropout=dropout, batch_first=True
+                )
+                self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
+                self.fc1 = nn.Linear(d_model, 32)
+                self.dropout = nn.Dropout(dropout)
+                self.fc2 = nn.Linear(32, 1)
+                self.relu = nn.ReLU()
+                self.sigmoid = nn.Sigmoid()
+            
+            def forward(self, x):
+                x = self.input_projection(x)
+                x = self.pos_encoder(x)
+                transformer_out = self.transformer_encoder(x)
+                pooled = transformer_out.mean(dim=1)
+                out = self.fc1(pooled)
+                out = self.relu(out)
+                out = self.dropout(out)
+                out = self.fc2(out)
+                out = self.sigmoid(out)
+                return out.squeeze()
+        
+        trans = OldTransformerChurnModel(19, 64, 4, 2, 0.3).to(device)
+        trans.load_state_dict(torch.load('results/models/transformer_best_model.pt', map_location=device))
         trans.eval()
         models['Transformer'] = trans
+        print("✅ Loaded Transformer")
     except Exception as e:
-        print(f"Error loading Transformer: {e}")
+        print(f"⚠️  Transformer not available: {e}")
         models['Transformer'] = None
     
     return models
@@ -91,41 +142,50 @@ def predict_conversion(
     # Check if model is loaded
     model = MODELS.get(model_name)
     if model is None:
-        return "Model not loaded ❌", 0.0, "Run notebook first to train models"
+        return "❌ Model not loaded", "0.0%", "⚠️  Run notebook first to train models"
     
-    # Prepare features (simplified - you'd aggregate properly for real usage)
-    features = np.array([[
-        nb_transfers_sent,
-        nb_transfers_received,
-        nb_iban_verifications,
-        nb_mobile_connections,
-        nb_banking_accounts,
-        nb_products_created,
-        nb_invoices_created,
-        nb_customers_created,
-        nb_invoices_sent,
-        nb_suppliers_created,
-        nb_transactions_reconciled,
+    # Prepare features based on model type
+    # For tree-based models: Use 76 aggregated features (sum, mean, max, std of 19 metrics)
+    # For deep learning: Use 19 features per timestep over 15 days
+    
+    # Create basic 19 daily features (simplified - assumes equal distribution)
+    basic_features = [
+        nb_transfers_sent / 15,
+        nb_transfers_received / 15,
+        nb_iban_verifications / 15,
+        nb_mobile_connections / 15,
+        nb_banking_accounts / 15,
+        nb_products_created / 15,
+        nb_invoices_created / 15,
+        nb_customers_created / 15,
+        nb_invoices_sent / 15,
+        nb_suppliers_created / 15,
+        nb_transactions_reconciled / 15,
         company_age_years,
-        # Add more features as needed (padding for now)
-        0, 0, 0, 0, 0, 0, 0, 0  # Placeholder for other features
-    ]])
+        0, 0, 0, 0, 0, 0, 0  # Padding for other 7 features (nb_clicks, nb_searches, etc.)
+    ]
     
     # Make prediction based on model type
     try:
         if model_name in ['Logistic Regression', 'XGBoost', 'LightGBM']:
-            # Tree-based models
+            # Tree-based models expect 76 features (19 metrics × 4 aggregations)
+            # Create aggregated features: sum, mean, max, std
+            total_values = [
+                nb_transfers_sent, nb_transfers_received, nb_iban_verifications,
+                nb_mobile_connections, nb_banking_accounts, nb_products_created,
+                nb_invoices_created, nb_customers_created, nb_invoices_sent,
+                nb_suppliers_created, nb_transactions_reconciled, company_age_years,
+                0, 0, 0, 0, 0, 0, 0  # Padding
+            ]
+            # Aggregate: sum, mean, max, std (simplified - use same for all)
+            features = np.array([total_values + basic_features + total_values + basic_features])
             probability = model.predict_proba(features)[0][1]
         else:
-            # Deep learning models
+            # Deep learning models expect (batch, 15 timesteps, 19 features)
             with torch.no_grad():
-                if model_name == 'LSTM/GRU':
-                    # Reshape for sequence (15 days, features)
-                    seq_features = features.reshape(1, 1, -1).repeat(15, axis=1)
-                    probability = model(torch.FloatTensor(seq_features)).item()
-                else:  # Transformer
-                    seq_features = features.reshape(1, 1, -1).repeat(15, axis=1)
-                    probability = model(torch.FloatTensor(seq_features)).item()
+                # Create sequence: repeat daily average over 15 days
+                seq_features = np.array([basic_features] * 15).reshape(1, 15, 19)
+                probability = model(torch.FloatTensor(seq_features)).item()
         
         # Determine prediction
         prediction = "✅ Will Convert" if probability >= 0.5 else "❌ Won't Convert"
