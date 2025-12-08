@@ -259,7 +259,11 @@ def plot_training_curves(history, save_dir='models/lstm'):
     lines2, labels2 = ax2_twin.get_legend_handles_labels()
     ax2.legend(lines1 + lines2, labels1 + labels2, loc='best')
     
-    plt.tight_layout()
+    # Add overall title with training info
+    fig.suptitle(f'GRU Training Progress - {history["epochs_trained"]} Epochs (Early Stopped)', 
+                 fontsize=15, fontweight='bold', y=0.995)
+    
+    plt.tight_layout(rect=[0, 0, 1, 0.97])
     plt.savefig(f'{save_dir}/training_curves.png', dpi=300, bbox_inches='tight')
     print(f"✅ Training curves saved to {save_dir}/training_curves.png")
     
