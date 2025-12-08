@@ -124,8 +124,13 @@ fig.text(0.5, 0.02, '⭐ Gold border indicates best performance for that metric'
          bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
 
 plt.tight_layout(rect=[0, 0.03, 1, 0.99])
-plt.savefig('model_comparison_comprehensive.png', dpi=300, bbox_inches='tight')
-print("✅ Saved comprehensive plot: model_comparison_comprehensive.png")
+
+# Save to results folder
+import os
+os.makedirs('results', exist_ok=True)
+output_path = 'results/model_comparison_comprehensive.png'
+plt.savefig(output_path, dpi=300, bbox_inches='tight')
+print(f"✅ Saved comprehensive plot: {output_path}")
 
 # Summary Statistics
 print("\n" + "="*70)
