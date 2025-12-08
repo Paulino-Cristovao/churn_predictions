@@ -53,18 +53,18 @@ X_train, X_val, y_train, y_val = train_test_split(
 print(f'Split: Train={len(X_train)}, Val={len(X_val)}, Test={len(X_test)}')
 
 # Train with improved hyperparameters
-print("\\n🚀 Training improved LSTM model...")
+print("\\n🚀 Training GRU model...")
 print("="*70)
 model, history = train_lstm_model(
     X_train, y_train, X_val, y_val,
     input_size=len(usage_cols),
-    hidden_size=128,  # Increased from 64
-    num_layers=3,     # Increased from 2
-    dropout=0.4,      # Increased regularization
-    batch_size=16,    # Smaller batches
-    learning_rate=0.0005,  # Lower LR
-    num_epochs=200,   # More epochs
-    patience=25,      # More patience
+    hidden_size=64,    # Original value
+    num_layers=2,      # Original value
+    dropout=0.3,       # Original value
+    batch_size=32,     # Original value
+    learning_rate=0.001,  # Original value
+    num_epochs=50,     # Original value
+    patience=10,       # Original value
     device=device,
     save_dir='models/lstm'
 )
@@ -76,7 +76,7 @@ print("="*70)
 model.load_state_dict(torch.load('models/lstm/best_model.pt'))
 results = evaluate_model(model, X_test, y_test, device=device, save_dir='models/lstm')
 
-print("\\nIMPROVED LSTM/GRU - TEST RESULTS")
+print("\\nGRU MODEL - TEST RESULTS")
 print("="*70)
 print(f"Accuracy:    {results['test_accuracy']:.4f} ({results['test_accuracy']*100:.2f}%)")
 print(f"ROC-AUC:     {results['test_auc']:.4f}")

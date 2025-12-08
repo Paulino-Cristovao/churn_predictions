@@ -14,8 +14,6 @@ import matplotlib.pyplot as plt
 import json
 import os
 
-from models.lstm.model import ImprovedChurnLSTM
-
 class SequenceDataset(Dataset):
     """PyTorch Dataset for sequential churn data"""
     def __init__(self, X, y):
@@ -83,8 +81,9 @@ def train_lstm_model(
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
     
-    # Initialize model
-    model = ImprovedChurnLSTM(
+    # Initialize simpler GRU model
+    from models.lstm.model import GRUModel
+    model = GRUModel(
         input_size=input_size,
         hidden_size=hidden_size,
         num_layers=num_layers,
@@ -93,14 +92,9 @@ def train_lstm_model(
     
     print(f"Model parameters: {sum(p.numel() for p in model.parameters()):,}")
     
-    # Loss and optimizer with weight decay
+    # Loss and optimizer (Adamax for sparse data)
     criterion = nn.BCELoss()
-    optimizer = optim.AdamW(model.parameters(), lr=learning_rate, weight_decay=1e-4)
-    
-    # Learning rate scheduler
-    scheduler = optim.lr_scheduler.ReduceLROnPlateau(
-        optimizer, mode='max', factor=0.5, patience=10
-    )
+    optimizer = optim.Adamax(model.parameters(), lr=learning_rate)
     
     # Training loop
     best_val_auc = 0
@@ -145,13 +139,12 @@ def train_lstm_model(
         val_auc = roc_auc_score(val_labels, val_probs) if len(np.unique(val_labels)) > 1 else 0.5
         val_aucs.append(val_auc)
         
-        # Learning rate scheduling
-        scheduler.step(val_auc)
+        # Get current LR
         current_lr = optimizer.param_groups[0]['lr']
         learning_rates.append(current_lr)
         
         if (epoch + 1) % 10 == 0:
-            print(f'Epoch {epoch+1:3d}/{num_epochs}: Loss={avg_train_loss:.4f}, Val AUC={val_auc:.4f}, LR={current_lr:.6f}')
+            print(f'Epoch {epoch+1:3d}/{num_epochs}: Loss={avg_train_loss:.4f}, Val AUC={val_auc:.4f}')
         
         # Early stopping
         if val_auc > best_val_auc:
