@@ -79,11 +79,11 @@ print(f"Model parameters: {sum(p.numel() for p in model.parameters()):,}")
 
 # Loss and optimizer
 criterion = nn.BCELoss()
-optimizer = optim.AdamW(model.parameters(), lr=0.001, weight_decay=1e-4)
+optimizer = optim.AdamW(model.parameters(), lr=0.01, weight_decay=1e-4)  # Optimal from LR search
 
 # Training loop
-num_epochs = 50
-patience = 10
+num_epochs = 100  # Increased for better convergence
+patience = 15     # Increased patience
 best_val_auc = 0
 counter = 0
 train_losses = []

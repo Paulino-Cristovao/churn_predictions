@@ -64,7 +64,7 @@ def train_lstm_model(
     dropout=0.3,         # GRU default
     batch_size=32,       # Standard batch size
     learning_rate=0.05,  # Optimal from LR search (tested 0.01, 0.001, 0.05, 0.005)
-    num_epochs=50,       # Sufficient for convergence
+    num_epochs=100,      # Increased for better convergence
     patience=10,         # Early stopping patience
     device='cpu',
     save_dir='models/lstm'

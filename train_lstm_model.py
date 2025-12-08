@@ -62,9 +62,9 @@ model, history = train_lstm_model(
     num_layers=2,      # Original value
     dropout=0.3,       # Original value
     batch_size=32,     # Original value
-    learning_rate=0.05,  # Optimal from hyperparameter search
-    num_epochs=50,     # Original value
-    patience=10,       # Original value
+    learning_rate=0.05,  # Optimal from hyperparameter search  
+    num_epochs=100,    # Increased for better convergence
+    patience=15,       # Increased patience for longer training
     device=device,
     save_dir='models/lstm'
 )
