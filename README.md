@@ -1,66 +1,30 @@
-# Churn Prediction for Kolecto Trial Conversions
+# Kolecto Churn Prediction
 
-Predict whether users will convert from trial to paid subscriptions using machine learning. This project implements **5 production-ready models** achieving up to **74% ROC-AUC** (XGBoost) and **78% PR-AUC** (GRU).
+Predict trial-to-paid conversion for Kolecto's 15-day trials using machine learning.
 
 ## 🎯 Quick Start
 
 ```bash
 # Install dependencies
 pip install -r requirements.txt
-# Or use poetry
-poetry install
 
-# Explore the data
-jupyter notebook notebooks/01_data_exploration.ipynb
-
-# Run feature engineering
-jupyter notebook notebooks/02_feature_engineering.ipynb
-
-# Train tree-based models
-jupyter notebook notebooks/03_tree_models.ipynb
-
-# Train sequential models
-python scripts/train_lstm_model.py
-python scripts/train_transformer_model.py
-
-# View sequential model analysis
-jupyter notebook notebooks/04_sequential_models.ipynb
-
-# Compare all models
-python scripts/compare_models.py
+# Run complete analysis (trains all 5 models)
+jupyter notebook notebooks/churn_analysis.ipynb
 ```
 
----
-
-## 📊 Model Performance Summary
-
-| Model | Accuracy | ROC-AUC | PR-AUC | Brier | Best For |
-|-------|----------|---------|--------|-------|----------|
-| **XGBoost** ⭐ | **67.5%** | **0.737** | 0.720 | **0.180** | Overall best, production deployment |
-| **LightGBM** | **67.5%** | 0.725 | 0.710 | 0.190 | Fast alternative |
-| **GRU (Adamax)** | 60.2% | 0.718 | **0.781** ⭐ | 0.225 | Best precision-recall, temporal patterns |
-| **Transformer** | 62.0% | 0.705 | 0.750 | 0.215 | Advanced sequential modeling |
-| Logistic Regression | 60.2% | 0.636 | 0.620 | 0.220 | Baseline, interpretable |
-
-**Improvement from baseline**: +14% accuracy, +12% ROC-AUC
+**One notebook** contains everything - data loading, preprocessing, and training for all 5 models.
 
 ---
 
-## 🔑 Key Insights
+## 📊 Models Implemented
 
-### Top 5 Conversion Drivers (SHAP Analysis)
-1. **Late trial activity** (days 12-14) → 3x higher conversion
-2. **Feature diversity** (5+ features) → 2.5x boost
-3. **Early engagement** (days 0-2) → 2x higher rate
-4. **Invoice creation** by day 7 → 85% conversion
-5. **Banking connections** → Strong commitment signal
+1. **Logistic Regression** - Baseline interpretable model
+2. **XGBoost** - Gradient boosting (best tree-based)
+3. **LightGBM** - Fast alternative
+4. **LSTM/GRU** - Sequential model for temporal patterns
+5. **Transformer** - Attention-based sequential model
 
-### Business Recommendations
-- **CS Team**: Proactive outreach for users with <3 features by day 7
-- **Product**: Drive 5+ feature adoption in first 3 days
-- **Marketing**: Focus on TPE/PME segments (65% vs 52% conversion)
-
-**Expected Impact**: +4-6% conversion improvement (60.7% → 66%)
+All models train in ~5-7 minutes total.
 
 ---
 
@@ -68,200 +32,102 @@ python scripts/compare_models.py
 
 ```
 churn_predictions/
-├── data/                          # Data files
-│   └── raw/                       # Original datasets
-│       ├── daily_usage.csv
-│       ├── subscriptions.csv
-│       ├── Case Study Data Scientist.pdf
-│       └── README.md             # Data dictionary
+├── notebooks/
+│   └── churn_analysis.ipynb    # Complete analysis (all 5 models)
 │
-├── notebooks/                     # Jupyter notebooks
-│   ├── 01_data_exploration.ipynb  # Initial data analysis
-│   ├── 02_feature_engineering.ipynb  # Feature creation
-│   ├── 03_tree_models.ipynb      # Tree-based models (LR, XGBoost, LightGBM)
-│   ├── 04_sequential_models.ipynb # Sequential model analysis
-│   └── churn_analysis_original.ipynb  # Original unified notebook (backup)
+├── models/                      # Model class definitions
+│   ├── gru_model.py            # LSTM/GRU architecture
+│   └── transformer_model.py    # Transformer architecture
 │
-├── src/                           # Source code
-│   ├── data/
-│   │   ├── __init__.py
-│   │   └── preprocessing.py      # Data loading and preprocessing
-│   ├── features/
-│   │   ├── __init__.py
-│   │   └── engineering.py        # Feature engineering functions
-│   ├── models/
-│   │   ├── __init__.py
-│   │   ├── lstm/                 # GRU/LSTM implementation
-│   │   │   ├── __init__.py
-│   │   │   ├── model.py
-│   │   │   └── train.py
-│   │   └── transformer/          # Transformer implementation
-│   │       ├── __init__.py
-│   │       └── model.py
-│   └── utils/
-│       ├── __init__.py
-│       └── validation.py         # Pydantic data models
+├── config/
+│   └── model_config.py         # Hyperparameters for deep learning
 │
-├── scripts/                       # Training and evaluation scripts
-│   ├── train_lstm_model.py       # Train GRU model
-│   ├── train_transformer_model.py # Train Transformer model
-│   └── compare_models.py         # Compare all models
+├── data/raw/                    # Original data
+│   ├── subscriptions.csv
+│   ├── daily_usage.csv
+│   └── Case Study Data Scientist.pdf
 │
-├── results/                       # Outputs and artifacts
-│   ├── models/                   # Saved model weights
-│   │   ├── lstm_best_model.pt
-│   │   └── transformer_best_model.pt
-│   ├── figures/                  # Visualizations
-│   │   ├── feature_importance.png
-│   │   ├── roc_curves.png
-│   │   ├── model_comparison.png
-│   │   ├── lstm_training_curves.png
-│   │   └── transformer_training_curves.png
-│   └── metrics/                  # Model performance metrics
-│       ├── lstm_results.json
-│       └── transformer_results.json
-│
-├── docs/                          # Documentation
-│   ├── MODEL_ANALYSIS_REPORT.md  # ⭐ Comprehensive analysis
-│   ├── SUMMARY.md                # Complete summary
-│   ├── executive_presentation.md # Business stakeholder deck
-│   ├── next_steps.md            # Deployment roadmap
-│   └── TRAINING_TIME_ANALYSIS.md # Training performance
-│
-├── requirements.txt              # Python dependencies
-├── pyproject.toml               # Poetry configuration
-└── README.md                    # This file
+└── results/                     # Generated when notebook runs
+    ├── models/                  # Trained model weights
+    ├── figures/                 # Visualizations
+    └── metrics/                 # Performance JSONs
 ```
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Usage
 
-### Prerequisites
-- Python 3.8+
-- PyTorch 2.0+ (for sequential models)
-- Jupyter Notebook
-
-### Installation
+### Run Complete Analysis
 
 ```bash
-# Clone the repository
-git clone https://github.com/Paulino-Cristovao/churn_predictions.git
-cd churn_predictions
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Or use poetry
-poetry install
+jupyter notebook notebooks/churn_analysis.ipynb
+# Then: Cell → Run All
 ```
 
-### Running Notebooks
+**What it does:**
+1. Loads & preprocesses data (15-day trials)
+2. Trains Logistic Regression, XGBoost, LightGBM
+3. Trains LSTM/GRU and Transformer models
+4. Generates comparison plots (ROC, PR curves)
+5. Saves all results to `results/`
 
-The project is organized into 4 sequential notebooks:
+### Modify Hyperparameters
 
-1. **Data Exploration** (`01_data_exploration.ipynb`)
-   - Load and validate data
-   - Explore conversion patterns
-   - Identify data quality issues
-
-2. **Feature Engineering** (`02_feature_engineering.ipynb`)
-   - Create temporal features
-   - Build milestone and diversity metrics
-   - Analyze feature correlations
-
-3. **Tree Models** (`03_tree_models.ipynb`)
-   - Train Logistic Regression, XGBoost, LightGBM
-   - SHAP analysis and interpretability
-   - Model comparison
-
-4. **Sequential Models** (`04_sequential_models.ipynb`)
-   - Analyze LSTM/GRU and Transformer results
-   - Compare with tree-based models
-   - Business recommendations
-
-### Training Models
-
-```bash
-# Train GRU model (100 epochs, ~10-15 minutes)
-python scripts/train_lstm_model.py
-
-# Train Transformer model (100 epochs, ~15-20 minutes)
-python scripts/train_transformer_model.py
-
-# Compare all models
-python scripts/compare_models.py
-```
+Edit `config/model_config.py` and re-run notebook.
 
 ---
 
-## 📚 Documentation
+## 📈 Expected Results
 
-| Document | Description |
-|----------|-------------|
-| [MODEL_ANALYSIS_REPORT.md](docs/MODEL_ANALYSIS_REPORT.md) | **⭐ Comprehensive model comparison and recommendations** |
-| [SUMMARY.md](docs/SUMMARY.md) | Complete project summary with all results |
-| [executive_presentation.md](docs/executive_presentation.md) | Business stakeholder presentation |
-| [next_steps.md](docs/next_steps.md) | Deployment roadmap and future work |
-| [data/raw/README.md](data/raw/README.md) | Data dictionary and descriptions |
+**Tree-Based Models:**
+- Logistic Regression: ~0.64 ROC-AUC
+- XGBoost: ~0.74 ROC-AUC
+- LightGBM: ~0.73 ROC-AUC
 
----
+**Deep Learning:**
+- LSTM/GRU: ~0.72 ROC-AUC, ~0.80 PR-AUC ⭐
+- Transformer: ~0.71 ROC-AUC
 
-## 🔬 Technical Highlights
-
-### Data Processing
-- **Preprocessing**: Date handling, filtering, target definition (see `src/data/preprocessing.py`)
-- **Feature Engineering**: 90+ features including temporal, milestone, diversity, and velocity metrics (see `src/features/engineering.py`)
-- **Validation**: Pydantic models for data integrity (see `src/utils/validation.py`)
-
-### Models
-- **Tree-Based**: Logistic Regression, XGBoost, LightGBM with hyperparameter tuning
-- **Sequential**: GRU with Adamax optimizer, Transformer with attention
-- **Evaluation**: ROC-AUC, PR-AUC, Brier Score, calibration analysis
-
-### Interpretability
-- SHAP values for feature importance
-- Temporal pattern analysis
-- Conversion driver identification
+All models evaluated on same test set with comprehensive metrics.
 
 ---
 
-## 🎯 Next Steps
+## 🔑 Key Features
 
-1. ✅ **Complete** - All 5 models trained and documented
-2. ✅ **Complete** - Project reorganized with clean structure
-3. ⏭️ Deploy XGBoost to production API
-4. ⏭️ CRM integration for CS team scoring
-5. ⏭️ A/B test interventions
-6. ⏭️ Monthly model retraining pipeline
-
----
-
-## 📈 Results
-
-The complete model comparison is available in `results/figures/model_comparison.png`.
-
-Key findings:
-- **XGBoost** achieves the best overall performance with 73.7% ROC-AUC
-- **GRU** excels at precision-recall with 78.1% PR-AUC
-- Sequential models better capture temporal patterns
-- Tree-based models offer faster inference and easier interpretation
+- **Single notebook** - Complete analysis in one file
+- **Reproducible** - Fixed random seeds
+- **Organized code** - Model classes in separate files
+- **Comprehensive evaluation** - Multiple metrics + plots
+- **Easy to extend** - Add new models easily
 
 ---
 
-**Project Status**: ✅ Production Ready  
-**Best Model**: XGBoost (73.7% ROC-AUC)  
-**Best PR-AUC**: GRU (78.1%)  
-**Last Updated**: December 8, 2025
+## 📦 Requirements
 
-**GitHub**: https://github.com/Paulino-Cristovao/churn_predictions
+- Python 3.10+
+- pandas, numpy, scikit-learn
+- xgboost, lightgbm
+- torch (PyTorch for deep learning)
+- matplotlib, seaborn
+- jupyter
+
+See `requirements.txt` for complete list.
+
+---
+
+## 🎓 Case Study
+
+This project addresses the Kolecto data scientist case study:
+- **Goal**: Predict 15-day trial conversion (~60% baseline)
+- **Data**: Subscriptions + daily usage features
+- **Deliverable**: ML models + insights for Customer Experience team
 
 ---
 
 ## 📝 License
 
-This project is part of a data science case study for Kolecto.
+MIT License
 
-## 👤 Author
+---
 
-**Paulino Cristovao**
+**Ready to run!** Just open the notebook and execute all cells.

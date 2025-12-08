@@ -1,19 +1,24 @@
-[project]
-name = "churn_predictions"
-version = "0.1.0"
-description = "Churn prediction analysis for Kolecto"
+[tool.poetry]
+name = "churn-predictions"
+version = "1.0.0"
+description = "Machine learning models for predicting trial-to-paid conversion (Kolecto case study)"
+authors = ["Paulino Cristovao"]
 readme = "README.md"
-requires-python = ">=3.9"
-dependencies = [
-    "pandas",
-    "numpy",
-    "scikit-learn",
-    "xgboost",
-    "lightgbm",
-    "matplotlib",
-    "seaborn",
-    "pydantic",
-    "jupyter",
-    "shap",
-    "notebook (>=7.5.0,<8.0.0)"
-]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pandas = ">=2.0.0"
+numpy = ">=1.24.0"
+scikit-learn = ">=1.3.0"
+xgboost = ">=2.0.0"
+lightgbm = ">=4.0.0"
+torch = ">=2.0.0"
+matplotlib = ">=3.7.0"
+seaborn = ">=0.12.0"
+pydantic = ">=2.0.0"
+jupyter = ">=1.0.0"
+shap = ">=0.42.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
