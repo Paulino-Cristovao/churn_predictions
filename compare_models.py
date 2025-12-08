@@ -22,7 +22,7 @@ except FileNotFoundError:
 # Load LSTM results if available
 lstm_metrics = None
 try:
-    with open('results/lstm_results.json', 'r') as f:
+    with open('models/lstm/results.json', 'r') as f:
         lstm_data = json.load(f)
     lstm_metrics = {
         'Accuracy': lstm_data['test_accuracy'],
