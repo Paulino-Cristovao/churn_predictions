@@ -54,14 +54,33 @@ else:
 if lstm_metrics:
     metrics['LSTM/GRU'] = lstm_metrics
 
+# Load Transformer results if available
+transformer_metrics = None
+try:
+    with open('models/transformer/results.json', 'r') as f:
+        transformer_data = json.load(f)
+    transformer_metrics = {
+        'Accuracy': transformer_data['test_accuracy'],
+        'AUC': transformer_data['test_auc'],
+        'PR-AUC': transformer_data['test_pr_auc'],
+        'Brier': transformer_data['test_brier']
+    }
+    print("✅ Loaded Transformer results")
+except FileNotFoundError:
+    print("⚠️ Transformer results not found")
+
+# Add Transformer if available
+if transformer_metrics:
+    metrics['Transformer'] = transformer_metrics
+
 print(f"📊 Comparing {len(metrics)} models")
 
 # Create comprehensive comparison plot
 fig, axes = plt.subplots(2, 2, figsize=(16, 12))
-fig.suptitle('Comprehensive 4-Model Performance Comparison', fontsize=20, fontweight='bold', y=0.995)
+fig.suptitle('Comprehensive 5-Model Performance Comparison', fontsize=20, fontweight='bold', y=0.995)
 
 models = list(metrics.keys())
-colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#F7DC6F']  # Red, Teal, Blue, Yellow
+colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#F7DC6F', '#9B59B6']  # Red, Teal, Blue, Yellow, Purple
 
 # 1. Accuracy Comparison (Top Left)
 ax1 = axes[0, 0]
