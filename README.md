@@ -8,11 +8,12 @@ Predict trial-to-paid conversion for Kolecto's 15-day trials using machine learn
 # Install dependencies
 pip install -r requirements.txt
 
-# Run complete analysis (trains all 5 models)
-jupyter notebook notebooks/churn_analysis.ipynb
+# Run the modular notebooks in order:
+jupyter notebook notebooks/01_data_processing.ipynb
+# ... then 02, 03, 04, 05, 06, 07
 ```
 
-**One notebook** contains everything - data loading, preprocessing, and training for all 5 models.
+**Refactored Project**: The analysis is split into **7 modular notebooks** for better organization and reproducibility.
 
 ---
 
@@ -20,11 +21,9 @@ jupyter notebook notebooks/churn_analysis.ipynb
 
 1. **Logistic Regression** - Baseline interpretable model
 2. **XGBoost** - Gradient boosting (best tree-based)
-3. **LightGBM** - Fast alternative
+3. **LightGBM** - Fast alternative (now with Optuna optimization)
 4. **LSTM/GRU** - Sequential model for temporal patterns
 5. **Transformer** - Attention-based sequential model
-
-All models train in ~5-7 minutes total.
 
 ---
 
@@ -33,130 +32,80 @@ All models train in ~5-7 minutes total.
 ```
 churn_predictions/
 ├── notebooks/
-│   └── churn_analysis.ipynb    # Complete analysis (all 5 models)
+│   ├── 01_data_processing.ipynb    # Data cleaning & splitting
+│   ├── 02_logistic_regression.ipynb
+│   ├── 03_xgboost.ipynb
+│   ├── 04_lightgbm.ipynb           # With Optuna tuning
+│   ├── 05_gru_model.ipynb          # Deep Learning (GRU)
+│   ├── 06_transformer_model.ipynb  # Deep Learning (Transformer)
+│   └── 07_model_comparison.ipynb   # Final results aggregation
 │
-├── models/                      # Model class definitions
-│   ├── gru_model.py            # LSTM/GRU architecture
-│   └── transformer_model.py    # Transformer architecture
+├── models/                         # Model class definitions
+│   ├── gru_model.py
+│   └── transformer_model.py
 │
-├── config/
-│   └── model_config.py         # Hyperparameters for deep learning
+├── docs/
+│   ├── MODEL_DOCUMENTATION.md      # Detailed theoretical guide
+│   └── NEXT_STEPS.md               # Recommendations for improvement
 │
-├── data/raw/                    # Original data
-│   ├── subscriptions.csv
-│   ├── daily_usage.csv
-│   └── Case Study Data Scientist.pdf
+├── data/
+│   ├── raw/                        # Original CSVs
+│   └── processed/                  # Generated pickles (churn_data.pkl)
 │
-└── results/                     # Generated when notebook runs
-    ├── models/                  # Trained model weights
-    ├── figures/                 # Visualizations
-    └── metrics/                 # Performance JSONs
+└── results/                        # Generated Artifacts
+    ├── models/                     # Saved models (e.g., xgboost/xgboost.pkl)
+    ├── figures/                    # Plots (e.g., comparison/model_comparison.png)
+    └── metrics/                    # JSON metrics
 ```
 
 ---
 
 ## 🚀 Usage
 
-### Run Complete Analysis
+### Run Analysis
+Execute the notebooks in numerical order (`01` to `07`).
+- **01**: Generates `data/processed/churn_data.pkl` (Required by all others).
+- **02-06**: Train individual models and save artifacts to `results/`.
+- **07**: Loads all metrics and generates comparison charts.
+
+### Interactive App
+Launch the Gradio demo to test predictions:
 
 ```bash
-jupyter notebook notebooks/churn_analysis.ipynb
-# Then: Cell → Run All
-```
-
-**What it does:**
-1. Loads & preprocesses data (15-day trials)
-2. Trains Logistic Regression, XGBoost, LightGBM
-3. Trains LSTM/GRU and Transformer models
-4. Generates comparison plots (ROC, PR curves)
-5. Saves all results to `results/`
-
-### Modify Hyperparameters
-
-Edit `config/model_config.py` and re-run notebook.
-
----
-
-## 📈 Expected Results
-
-**Tree-Based Models:**
-- Logistic Regression: ~0.64 ROC-AUC
-- XGBoost: ~0.74 ROC-AUC
-- LightGBM: ~0.73 ROC-AUC
-
-**Deep Learning:**
-- LSTM/GRU: ~0.72 ROC-AUC, ~0.80 PR-AUC ⭐
-- Transformer: ~0.71 ROC-AUC
-
-All models evaluated on same test set with comprehensive metrics.
-
----
-
-## 🔑 Key Features
-
-- **Single notebook** - Complete analysis in one file
-- **Reproducible** - Fixed random seeds
-- **Organized code** - Model classes in separate files
-- **Comprehensive evaluation** - Multiple metrics + plots
-- **Easy to extend** - Add new models easily
-
----
-
-## 📦 Requirements
-
-- Python 3.10+
-- pandas, numpy, scikit-learn
-- xgboost, lightgbm
-- torch (PyTorch for deep learning)
-- matplotlib, seaborn
-- jupyter
-
-See `requirements.txt` for complete list.
-
----
-
-## 🎓 Case Study
-
-This project addresses the Kolecto data scientist case study:
-- **Goal**: Predict 15-day trial conversion (~60% baseline)
-- **Data**: Subscriptions + daily usage features
-- **Deliverable**: ML models + insights for Customer Experience team
-
----
-
-## 📱 Interactive Demo App
-
-The project includes a Gradio web application to test predictions interactively.
-
-### Quick Start
-
-```bash
-# Install Gradio (if not already installed)
-pip install gradio
-
-# Run the app
 python app.py
 ```
+Open `http://localhost:7860`.
 
-The app will launch at `http://localhost:7860`
+---
 
-### Features
-- **Select any of 5 models**: Logistic Regression, XGBoost, LightGBM, LSTM/GRU, Transformer
-- **Input trial usage features**: Invoices, products, bank connections, etc.
-- **See instant prediction**: Will convert or not
-- **Visual confidence bar**: Easy interpretation
+## 📈 Key Results
 
-### Example Scenarios
-- **High Engagement**: Many invoices, products, bank connections → Likely converts ✅
-- **Low Engagement**: Few activities, no banking setup → Likely cancels ❌
-- **Medium**: Some usage → Borderline (target for intervention)
+| Model | PR-AUC (Key Metric) | ROC-AUC | Accuracy |
+|-------|---------------------|---------|----------|
+| **XGBoost** | **0.7602** | 0.6200 | 59.04% |
+| **LightGBM** | 0.7592 | 0.5818 | 54.22% |
+| **LSTM/GRU** | 0.7241 | 0.6606 | 60.24% |
+| **Transformer** | 0.7162 | 0.6485 | **61.45%** |
+| **Logistic Regression** | 0.7145 | 0.6333 | 59.04% |
+
+**Winner**: **XGBoost** slightly outperforms others in Precision-Recall AUC, making it the best candidate for identifying churners in this imbalanced dataset.
+
+---
+
+## 📚 Documentation
+- **[MODEL_DOCUMENTATION.md](docs/MODEL_DOCUMENTATION.md)**: Deep dive into model architectures and validation.
+- **[NEXT_STEPS.md](docs/NEXT_STEPS.md)**: Roadmap for future improvements.
+
+## 📦 Requirements
+- Pandas, NumPy, Scikit-learn
+- XGBoost, LightGBM, Optuna
+- PyTorch (torch)
+- Matplotlib, Seaborn
+- Gradio (for app)
+
+See `requirements.txt`.
 
 ---
 
 ## 📝 License
-
 MIT License
-
----
-
-**Ready to run!** Just open the notebook and execute all cells.
