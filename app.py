@@ -23,7 +23,7 @@ def load_models():
     
     # Load tree-based models (if they exist)
     try:
-        with open('results/models/logistic_regression.pkl', 'rb') as f:
+        with open('results/models/logistic_regression/logistic_regression.pkl', 'rb') as f:
             models['Logistic Regression'] = pickle.load(f)
             print("✅ Loaded Logistic Regression")
     except Exception as e:
@@ -31,7 +31,7 @@ def load_models():
         models['Logistic Regression'] = None
     
     try:
-        with open('results/models/xgboost.pkl', 'rb') as f:
+        with open('results/models/xgboost/xgboost.pkl', 'rb') as f:
             models['XGBoost'] = pickle.load(f)
             print("✅ Loaded XGBoost")
     except Exception as e:
@@ -39,7 +39,7 @@ def load_models():
         models['XGBoost'] = None
     
     try:
-        with open('results/models/lightgbm.pkl', 'rb') as f:
+        with open('results/models/lightgbm/lightgbm.pkl', 'rb') as f:
             models['LightGBM'] = pickle.load(f)
             print("✅ Loaded LightGBM")
     except Exception as e:
@@ -52,7 +52,7 @@ def load_models():
         # GRU was trained with fc1 output size 16 (not 32 as in current gru_model.py)
         # Load model with strict=False to handle minor architecture differences
         gru = GRUChurnModel(19, 64, 2, 0.3).to(device)
-        state_dict = torch.load('results/models/lstm_best_model.pt', map_location=device)
+        state_dict = torch.load('results/models/gru/gru_best_model.pt', map_location=device)
         # Modify fc1 layer to match saved model (16 instead of 32)
         gru.fc1 = torch.nn.Linear(64, 16).to(device)
         gru.fc2 = torch.nn.Linear(16, 1).to(device)
@@ -71,30 +71,52 @@ def load_models():
         import torch.nn as nn
         from models.transformer_model import PositionalEncoding
         
-        class OldTransformerChurnModel(nn.Module):
-            """Match the architecture of the saved transformer model"""
+        class TransformerChurnModel(nn.Module):
+            """Match the architecture of the saved transformer model (76 features)"""
             def __init__(self, input_size, d_model=64, nhead=4, num_layers=2, dropout=0.3):
-                super().__init__()
-                self.d_model = d_model
-                self.input_projection = nn.Linear(input_size, d_model)  # Note: input_projection not input_proj
-                self.pos_encoder = PositionalEncoding(d_model)
+                super(TransformerChurnModel, self).__init__()
+                
+                self.input_projection = nn.Linear(input_size, d_model)
+                # Checkpoint has [1, 5000, 64] (default from notebook)
+                # models/transformer_model.py default is 15. We must force 5000.
+                self.pos_encoder = PositionalEncoding(d_model, max_len=5000)
+                
                 encoder_layer = nn.TransformerEncoderLayer(
                     d_model=d_model, nhead=nhead,
-                    dim_feedforward=d_model * 2,  # 128 not 256
+                    dim_feedforward=d_model * 2,
                     dropout=dropout, batch_first=True
                 )
                 self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
-                self.fc1 = nn.Linear(d_model, 32)
-                self.dropout = nn.Dropout(dropout)
-                self.fc2 = nn.Linear(32, 1)
+                
+                self.fc1 = nn.Linear(d_model, 16)  # Trained with 16, not 32
                 self.relu = nn.ReLU()
+                self.dropout = nn.Dropout(dropout)
+                self.fc2 = nn.Linear(16, 1)        # Trained with 16->1
                 self.sigmoid = nn.Sigmoid()
             
             def forward(self, x):
+                # Project input features to d_model dimension
                 x = self.input_projection(x)
                 x = self.pos_encoder(x)
+                
+                # Transformer encoding
+                # Permute for transformer: (Seq, Batch, Feature) -> (Batch, Seq, Feature) is batch_first=True??
+                # Wait, trained model in 06_transformer used default batch_first=False for encoder??
+                # Notebook 06: `encoder_layers = nn.TransformerEncoderLayer(..., batch_first=False)` (Default)
+                # Let's check 06 notebook code I wrote:
+                # `encoder_layers = nn.TransformerEncoderLayer(d_model=d_model, nhead=nhead, dim_feedforward=d_model*2, dropout=dropout)` -> Default batch_first=False
+                # `x = x.permute(1, 0, 2)` -> (Seq, Batch, Feature) 
+                # `transformer_out = self.transformer_encoder(x)`
+                
+                # So I need to match EXACTLY what was in 06_transformer_model.ipynb
+                
+                # Replicating 06_transformer_model struct:
+                x = self.input_projection(x)
+                x = self.pos_encoder(x)
+                x = x.permute(1, 0, 2) # (Seq, Batch, Feature)
                 transformer_out = self.transformer_encoder(x)
-                pooled = transformer_out.mean(dim=1)
+                pooled = transformer_out.mean(dim=0) # Mean across Seq dim (dim 0 now)
+                
                 out = self.fc1(pooled)
                 out = self.relu(out)
                 out = self.dropout(out)
@@ -102,8 +124,9 @@ def load_models():
                 out = self.sigmoid(out)
                 return out.squeeze()
         
-        trans = OldTransformerChurnModel(19, 64, 4, 2, 0.3).to(device)
-        trans.load_state_dict(torch.load('results/models/transformer_best_model.pt', map_location=device))
+        # Load model with input_size=76 (aggregated features)
+        trans = TransformerChurnModel(76, 64, 4, 2, 0.3).to(device)
+        trans.load_state_dict(torch.load('results/models/transformer/transformer_best_model.pt', map_location=device))
         trans.eval()
         models['Transformer'] = trans
         print("✅ Loaded Transformer")

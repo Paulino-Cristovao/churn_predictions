@@ -124,6 +124,35 @@ This project addresses the Kolecto data scientist case study:
 
 ---
 
+## 📱 Interactive Demo App
+
+The project includes a Gradio web application to test predictions interactively.
+
+### Quick Start
+
+```bash
+# Install Gradio (if not already installed)
+pip install gradio
+
+# Run the app
+python app.py
+```
+
+The app will launch at `http://localhost:7860`
+
+### Features
+- **Select any of 5 models**: Logistic Regression, XGBoost, LightGBM, LSTM/GRU, Transformer
+- **Input trial usage features**: Invoices, products, bank connections, etc.
+- **See instant prediction**: Will convert or not
+- **Visual confidence bar**: Easy interpretation
+
+### Example Scenarios
+- **High Engagement**: Many invoices, products, bank connections → Likely converts ✅
+- **Low Engagement**: Few activities, no banking setup → Likely cancels ❌
+- **Medium**: Some usage → Borderline (target for intervention)
+
+---
+
 ## 📝 License
 
 MIT License

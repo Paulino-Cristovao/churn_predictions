@@ -1,0 +1,18 @@
+{
+    "model": "LightGBM",
+    "accuracy": 0.5421686746987951,
+    "roc_auc": 0.5981818181818181,
+    "pr_auc": 0.7661186448642415,
+    "brier": 0.26059664983562836,
+    "best_params": {
+        "n_estimators": 300,
+        "max_depth": 7,
+        "learning_rate": 0.06335501887319836,
+        "num_leaves": 48,
+        "min_child_samples": 12,
+        "subsample": 0.9689728582201014,
+        "colsample_bytree": 0.7142718653531,
+        "reg_alpha": 1.494989005430183,
+        "reg_lambda": 1.4803600165724147
+    }
+}

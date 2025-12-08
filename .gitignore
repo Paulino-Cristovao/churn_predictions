@@ -1,12 +1,28 @@
 # Data
+data/
 *.csv
-*.pdf
-Data/
+*.pkl
+*.pt
+*.parquet
 
-# Jupyter
-.ipynb_checkpoints
+# Models
+results/models/
+*.h5
+
+# Documentation
+*.pdf
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
 
 # Python
-__pycache__
-*.pyc
-results/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# System
+.DS_Store
+.env
+.venv
+env/
+venv/
