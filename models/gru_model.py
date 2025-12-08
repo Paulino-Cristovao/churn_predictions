@@ -24,9 +24,9 @@ class GRUChurnModel(nn.Module):
         )
         
         # Fully connected layers
-        self.fc1 = nn.Linear(hidden_size, 32)
+        self.fc1 = nn.Linear(hidden_size, 16)
         self.dropout = nn.Dropout(dropout)
-        self.fc2 = nn.Linear(32, 1)
+        self.fc2 = nn.Linear(16, 1)
         
         self.relu = nn.ReLU()
         self.sigmoid = nn.Sigmoid()

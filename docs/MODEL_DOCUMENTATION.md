@@ -1,6 +1,6 @@
 # Kolecto Churn Prediction - Model Documentation
 
-## 📋 Overview
+##  Overview
 
 This document provides comprehensive documentation for all five machine learning models developed to predict trial-to-paid conversion for Kolecto's 15-day trial period. The goal is to identify the best model for production deployment while understanding each model's strengths, weaknesses, and optimal use cases.
 
@@ -18,7 +18,7 @@ This document provides comprehensive documentation for all five machine learning
 
 ---
 
-## 📊 Model Comparison Summary
+##  Model Comparison Summary
 
 | Model | ROC-AUC | PR-AUC | Accuracy | Brier Score | Training Time | Best Use Case |
 |-------|---------|--------|----------|-------------|---------------|---------------|
@@ -32,7 +32,7 @@ This document provides comprehensive documentation for all five machine learning
 
 ---
 
-## 🤖 Model 1: Logistic Regression
+##  Model 1: Logistic Regression
 
 ### Model Explanation
 A simple linear model that serves as the baseline. It models the log-odds of conversion as a linear combination of the 76 aggregated usage features.
@@ -49,9 +49,9 @@ A simple linear model that serves as the baseline. It models the log-odds of con
 - **Stable**: No hyperparameter tuning needed
 
 ### Improvements Made
-✅ **Standard scaling** of features (essential for logistic regression)  
-✅ **Stratified split** to maintain class balance  
-✅ **Increased max_iter** to 1,000 to ensure convergence  
+ **Standard scaling** of features (essential for logistic regression)  
+ **Stratified split** to maintain class balance  
+ **Increased max_iter** to 1,000 to ensure convergence  
 
 ### Performance Metrics
 - **ROC-AUC**: 0.609 (moderate discrimination)
@@ -89,10 +89,10 @@ Gradient boosting decision trees that iteratively build an ensemble of weak lear
 - **SHAP support**: Can explain individual predictions
 
 ### Improvements Made
-✅ **100 trees** (up from default 50)  
-✅ **Max depth 5** to prevent overfitting  
-✅ **No scaling required** (tree-based model)  
-✅ **Feature importance visualization** for business insights  
+ **100 trees** (up from default 50)  
+ **Max depth 5** to prevent overfitting  
+ **No scaling required** (tree-based model)  
+ **Feature importance visualization** for business insights  
 
 ### Performance Metrics
 - **ROC-AUC**: 0.592 (slightly below logistic regression)
@@ -136,8 +136,8 @@ Microsoft's gradient boosting framework, optimized for speed and efficiency. Use
 - **Alternative to XGBoost**: Validation that boosting works
 
 ### Improvements Made
-✅ **Matched XGBoost config** for fair comparison  
-✅ **Default parameters** work well (no overfitting)  
+ **Matched XGBoost config** for fair comparison  
+ **Default parameters** work well (no overfitting)  
 
 ### Performance Metrics
 - **ROC-AUC**: 0.610 (tied with logistic regression)
@@ -194,13 +194,13 @@ Sigmoid → Probability
 - **Best PR-AUC**: Achieves highest performance
 
 ### Improvements Made
-✅ **Adamax optimizer** (adaptive learning, better than Adam for this problem)  
-✅ **Learning rate 0.001** (found via grid search)  
-✅ **2 GRU layers** with dropout 0.3 (prevents overfitting)  
-✅ **Early stopping** with patience=10 (stops when validation AUC plateaus)  
-✅ **Progress bars (tqdm)** for real-time training monitoring  
-✅ **50 epochs** with early stopping (typically stops at ~30 epochs)  
-✅ **Batch size 32** (optimal for GPU memory)  
+ **Adamax optimizer** (adaptive learning, better than Adam for this problem)  
+ **Learning rate 0.001** (found via grid search)  
+ **2 GRU layers** with dropout 0.3 (prevents overfitting)  
+ **Early stopping** with patience=10 (stops when validation AUC plateaus)  
+ **Progress bars (tqdm)** for real-time training monitoring  
+ **50 epochs** with early stopping (typically stops at ~30 epochs)  
+ **Batch size 32** (optimal for GPU memory)  
 
 ### Performance Metrics
 - **ROC-AUC**: 0.720 ⭐ **Best overall**
@@ -271,13 +271,13 @@ Sigmoid → Probability
 - **State-of-the-art**: Cutting-edge deep learning
 
 ### Improvements Made
-✅ **Adamax optimizer** with **lr=0.0005** (half of GRU, found via LR finder)  
-✅ **4 attention heads** (captures different temporal patterns)  
-✅ **d_model=64** (embedding dimension)  
-✅ **2 encoder layers** (shallow architecture for small dataset)  
-✅ **Positional encoding** (sine/cosine to encode day order)  
-✅ **Mean pooling** (averages across all days, not just last)  
-✅ **Early stopping** + **progress bars**  
+ **Adamax optimizer** with **lr=0.0005** (half of GRU, found via LR finder)  
+ **4 attention heads** (captures different temporal patterns)  
+ **d_model=64** (embedding dimension)  
+ **2 encoder layers** (shallow architecture for small dataset)  
+ **Positional encoding** (sine/cosine to encode day order)  
+ **Mean pooling** (averages across all days, not just last)  
+ **Early stopping** + **progress bars**  
 
 ### Performance Metrics
 - **ROC-AUC**: 0.710 (2nd best)
@@ -333,7 +333,7 @@ For **imbalanced classification** with positive class ~60%, PR-AUC is more impor
 
 ## 🔬 Key Findings
 
-### 1. Sequential Data is Gold 🏆
+### 1. Sequential Data is Gold 
 - Models using **daily time series** (GRU, Transformer) outperform those using **aggregated features** (tree models)
 - **Temporal patterns** matter: Users who engage early and consistently are more likely to convert
 - **Recommendation**: Always collect and preserve time-series data
@@ -363,7 +363,7 @@ For **imbalanced classification** with positive class ~60%, PR-AUC is more impor
 
 ---
 
-## 🚀 Recommendations & Next Steps
+##  Recommendations & Next Steps
 
 ### Production Deployment
 
@@ -371,7 +371,7 @@ For **imbalanced classification** with positive class ~60%, PR-AUC is more impor
 **Why**: Best PR-AUC (0.80), good ROC-AUC (0.72), calibrated probabilities
 
 **Deployment Steps**:
-1. ✅ Model saved: `results/models/gru_best_model.pt`
+1.  Model saved: `results/models/gru_best_model.pt`
 2. Load with PyTorch: `model.load_state_dict(torch.load(path))`
 3. **Input format**: (batch, 15, 19) - daily usage for 15 days
 4. **Output**: Probability between 0 and 1
@@ -415,13 +415,13 @@ if prob < 0.4:
 - **Tool**: Plot precision-recall trade-off curve
 - **Example**: If intervention costs $10 and losing a customer costs $100, optimize for recall
 
-#### 2. Deploy GRU to Production ⚙️
+#### 2. Deploy GRU to Production 
 - **Platform**: Deploy via Flask/FastAPI REST API
 - **Input**: User ID → fetch 15-day usage from database → predict
 - **Output**: Risk score (0-1) + risk category (low/medium/high)
 - **Monitoring**: Track prediction distribution, retrain if drift detected
 
-#### 3. Set Up Model Monitoring 📊
+#### 3. Set Up Model Monitoring 
 - **Data drift**: Monitor if input distributions change (e.g., new product features)
 - **Prediction drift**: Track conversion rates by predicted probability bucket
 - **Retrain trigger**: Retrain if ROC-AUC drops below 0.68 (5% threshold)
@@ -441,7 +441,7 @@ if prob < 0.4:
 
 ### Medium-Term Improvements
 
-#### 5. Feature Engineering 🛠️
+#### 5. Feature Engineering 🛠
 **Temporal Features to Add**:
 - **Trend**: Linear regression slope of daily usage (increasing/decreasing)
 - **Volatility**: Standard deviation of daily usage
@@ -478,7 +478,7 @@ if prob < 0.4:
 - Show Customer Experience team which trial days matter most
 - Visualize: "Days 3-5 were critical for this user's conversion"
 
-#### 10. Real-Time Prediction API 🚀
+#### 10. Real-Time Prediction API 
 **Architecture**:
 ```
 User activity (15 days) → GRU Model → Probability → CRM System
@@ -515,7 +515,7 @@ User activity (15 days) → GRU Model → Probability → CRM System
 
 ---
 
-## 📊 Technical Specifications
+##  Technical Specifications
 
 ### Model Artifacts
 All trained models and metrics are saved in `results/`:
@@ -571,7 +571,7 @@ jupyter notebook notebooks/churn_analysis.ipynb
 
 ---
 
-## ✅ Conclusion
+##  Conclusion
 
 This project successfully developed **5 machine learning models** for churn prediction, with the **GRU/LSTM model** achieving the best performance (PR-AUC: 0.80, ROC-AUC: 0.72). The key insight is that **sequential data is critical**—models using daily time series outperform those using aggregated features.
 

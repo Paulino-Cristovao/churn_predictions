@@ -2,7 +2,7 @@
 
 ## Model Loading Status
 
-### ✅ Successfully Loaded Models (2/5)
+###  Successfully Loaded Models (2/5)
 - **LSTM/GRU**: Loaded successfully
   - Fixed architecture: fc1 layer size 16 (was 32 in gru_model.py)
   - File: `results/models/lstm_best_model.pt`
@@ -10,7 +10,7 @@
   - Fixed architecture: dim_feedforward=128 (was 256), input_projection layer name
   - File: `results/models/transformer_best_model.pt`
 
-### ⚠️ Not Available (3/5)
+###  Not Available (3/5)
 - **Logistic Regression**: No saved `.pkl` file
 - **XGBoost**: No saved `.pkl` file
 - **LightGBM**: No saved `.pkl` file
@@ -40,7 +40,7 @@
 ### 3. Error Handling
 - Added informative messages for each model
 - Graceful handling when models are missing
-- Clear user feedback: "⚠️ Run notebook first to train models"
+- Clear user feedback: " Run notebook first to train models"
 
 ---
 
@@ -57,12 +57,12 @@ os.makedirs('../results/models', exist_ok=True)
 # Save logistic regression model
 with open('../results/models/logistic_regression.pkl', 'wb') as f:
     pickle.dump(lr_model, f)
-print("✅ Saved Logistic Regression model")
+print(" Saved Logistic Regression model")
 
 # Also save scaler (needed for inference)
 with open('../results/models/scaler.pkl', 'wb') as f:
     pickle.dump(scaler, f)
-print("✅ Saved scaler")
+print(" Saved scaler")
 ```
 
 ### After XGBoost (Cell ~7)
@@ -70,7 +70,7 @@ print("✅ Saved scaler")
 # Save XGBoost model
 with open('../results/models/xgboost.pkl', 'wb') as f:
     pickle.dump(xgb_model, f)
-print("✅ Saved XGBoost model")
+print(" Saved XGBoost model")
 ```
 
 ### After LightGBM (Cell ~8)
@@ -78,7 +78,7 @@ print("✅ Saved XGBoost model")
 # Save LightGBM model
 with open('../results/models/lightgbm.pkl', 'wb') as f:
     pickle.dump(lgb_model, f)
-print("✅ Saved LightGBM model")
+print(" Saved LightGBM model")
 ```
 
 ---
@@ -99,11 +99,11 @@ print("✅ Saved LightGBM model")
 ## App Functionality
 
 **Working Now**:
-- ✅ LSTM/GRU predictions
-- ✅ Transformer predictions
-- ✅ User interface (Gradio)
-- ✅ Example scenarios
-- ✅ Prediction formatting
+-  LSTM/GRU predictions
+-  Transformer predictions
+-  User interface (Gradio)
+-  Example scenarios
+-  Prediction formatting
 
 **Will work after saving tree models**:
 - ⏳ Logistic Regression predictions
@@ -130,7 +130,7 @@ print("✅ Saved LightGBM model")
 
 ## Summary
 
-**Status**: ✅ **2/5 models working in Gradio app (40%)**
+**Status**:  **2/5 models working in Gradio app (40%)**
 
 All critical app.py bugs have been fixed. Deep learning models (LSTM/GRU, Transformer) load and predict successfully. Tree models need to be exported from notebook to work in the app.
 
