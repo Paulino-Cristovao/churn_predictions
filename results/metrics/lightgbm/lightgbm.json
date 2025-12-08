@@ -1,18 +1,18 @@
 {
     "model": "LightGBM",
-    "accuracy": 0.7228915662650602,
-    "roc_auc": 0.8027272727272727,
-    "pr_auc": 0.8419077034104164,
-    "brier": 0.1912800937190458,
+    "accuracy": 0.7469879518072289,
+    "roc_auc": 0.8024242424242425,
+    "pr_auc": 0.8466412432940242,
+    "brier": 0.1971996818633321,
     "best_params": {
-        "n_estimators": 394,
-        "max_depth": 6,
-        "learning_rate": 0.07124237397539307,
-        "num_leaves": 20,
-        "min_child_samples": 46,
-        "subsample": 0.7909883543158385,
-        "colsample_bytree": 0.9363160160619407,
-        "reg_alpha": 9.960000243426165,
-        "reg_lambda": 1.0026892802327756
+        "n_estimators": 100,
+        "max_depth": 5,
+        "learning_rate": 0.03083968432524578,
+        "num_leaves": 24,
+        "min_child_samples": 50,
+        "subsample": 0.9509018882459628,
+        "colsample_bytree": 0.9181304141154691,
+        "reg_alpha": 9.984093528660415,
+        "reg_lambda": 2.1351480451751454
     }
 }

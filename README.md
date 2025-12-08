@@ -16,7 +16,7 @@ This project provides a robust, end-to-end machine learning solution to predict 
 *   **State-of-the-Art Models**: Compare **LightGBM**, **XGBoost**, **Logistic Regression**, **GRU (RNN)**, and **Transformer**.
 *   **Deep Feature Engineering**: Automates the processing of **157 features**, using standard scaling for metrics and One-Hot/Ordinal encoding for categorical data like *NAF Codes, Revenue Ranges, and Legal Structures*.
 *   **Interactive Application**: A user-friendly Gradio web interface (`app.py`) for real-time scoring.
-*   **Top Performance**: **LightGBM** achieves **AUC 0.82**, significantly outperforming baselines.
+*   **Top Performance**: **LightGBM** achieves **AUC 0.80**, significantly outperforming baselines.
 
 ---
 
@@ -24,10 +24,10 @@ This project provides a robust, end-to-end machine learning solution to predict 
 
 | Model | Accuracy | ROC-AUC | PR-AUC | Calibration (Brier) |
 | :--- | :--- | :--- | :--- | :--- |
-| **LightGBM** | **75.9%** | **0.822** | **0.869** | **0.188** |
-| **Transformer** | 72.3% | 0.736 | 0.733 | 0.208 |
-| **LSTM/GRU** | 68.7% | 0.722 | 0.774 | 0.213 |
-| **Logistic Regression** | 69.9% | 0.689 | 0.760 | 0.226 |
+| **LightGBM** | **72.3%** | **0.803** | **0.842** | **0.191** |
+| **Transformer** | 61.4% | 0.738 | 0.737 | 0.225 |
+| **LSTM/GRU** | 68.7% | 0.730 | 0.785 | 0.201 |
+| **Logistic Regression** | 69.9% | 0.689 | 0.760 | 0.225 |
 | **XGBoost** | 63.9% | 0.672 | 0.777 | 0.246 |
 
 > *See [docs/METRICS_EXPLANATION.md](docs/METRICS_EXPLANATION.md) for details on these metrics.*
@@ -57,8 +57,14 @@ graph LR
 
 ### 1. Setup Environment
 Ensure you have Python 3.10+ installed.
+Using pip:
 ```bash
 pip install -r requirements.txt
+```
+
+Using poetry:
+```bash
+poetry install
 ```
 
 ### 2. Run the Interactive App
@@ -105,8 +111,10 @@ All detailed documentation is located in the `docs/` directory:
 ├── results/                # Saved Artifacts (Models, Figures, Metrics)
 │   ├── models/             # PKL and PT files
 │   ├── preprocessor.pkl    # Fitted ColumnTransformer
-│   └── app_config.json     # App Dropdown Options
-└── requirements.txt        # Dependencies
+│   ├── app_config.json     # App Dropdown Options
+│   └── feature_columns.json # Feature Mapping
+├── requirements.txt        # Dependencies
+└── poetry.lock             # Poetry Lockfile
 ```
 
 ---
