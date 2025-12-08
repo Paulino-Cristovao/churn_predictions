@@ -371,7 +371,67 @@ notebook = {
     "\n",
     "# Fill NaN values\n",
     "new_feature_cols = [col for col in df.columns if any(prefix in col for prefix in ['total_', 'early_', 'late_', 'engagement', 'activity', 'feature_diversity'])]\n",
-    "df[new_feature_cols] = df[new_feature_cols].fillna(0)"
+    "df[new_feature_cols] = df[new_feature_cols].fillna(0)\n",
+    "\n",
+    "print(f'Dataset shape after basic feature engineering: {df.shape}')"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### 3.4 Advanced Temporal Features ⭐ HIGH IMPACT\n",
+    "Sophisticated time-based patterns: milestones, velocity, first-action timing."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": None,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# A. Cumulative Engagement by Milestone Days\n",
+    "for milestone in [3, 7, 10, 12]:\n",
+    "    milestone_data = daily_usage_df[daily_usage_df['day_number'] <= milestone]\n",
+    "    cumulative = milestone_data.groupby('subscription_id')['daily_total_activity'].sum().reset_index()\n",
+    "    cumulative.columns = ['subscription_id', f'cumulative_day{milestone}']\n",
+    "    df = df.merge(cumulative, on='subscription_id', how='left')\n",
+    "\n",
+    "print('Added cumulative milestone features')\n",
+    "\n",
+    "# B. Time-to-First-Action (top 10 features)\n",
+    "for col in usage_cols[:10]:\n",
+    "    first_use = daily_usage_df[daily_usage_df[col] > 0].groupby('subscription_id')['day_number'].min().reset_index()\n",
+    "    first_use.columns = ['subscription_id', f'first_{col}']\n",
+    "    df = df.merge(first_use, on='subscription_id', how='left')\n",
+    "    df[f'first_{col}'] = df[f'first_{col}'].fillna(16)  # Never used = day 16\n",
+    "    df[f'never_{col}'] = (df[f'first_{col}'] == 16).astype(int)\n",
+    "\n",
+    "print('Added time-to-first-action features')\n",
+    "\n",
+    "# C. Activity Velocity\n",
+    "velocity = daily_usage_df.groupby('subscription_id').apply(\n",
+    "    lambda x: x['daily_total_activity'].iloc[-3:].mean() - x['daily_total_activity'].iloc[:3].mean() if len(x) >= 6 else 0\n",
+    ").reset_index()\n",
+    "velocity.columns = ['subscription_id', 'activity_velocity']\n",
+    "df = df.merge(velocity, on='subscription_id', how='left')\n",
+    "\n",
+    "# D. Active Days Ratio\n",
+    "active_ratio = daily_usage_df.groupby('subscription_id').apply(\n",
+    "    lambda x: (x['daily_total_activity'] > 0).mean()\n",
+    ").reset_index()\n",
+    "active_ratio.columns = ['subscription_id', 'active_days_ratio']\n",
+    "df = df.merge(active_ratio, on='subscription_id', how='left')\n",
+    "\n",
+    "# E. Weekend Activity\n",
+    "daily_usage_df['is_weekend'] = daily_usage_df['day_date'].dt.dayofweek >= 5\n",
+    "weekend = daily_usage_df.groupby('subscription_id').apply(\n",
+    "    lambda x: x[x['is_weekend']]['daily_total_activity'].sum() / (x['daily_total_activity'].sum() + 1)\n",
+    ").reset_index()\n",
+    "weekend.columns = ['subscription_id', 'weekend_ratio']\n",
+    "df = df.merge(weekend, on='subscription_id', how='left')\n",
+    "\n",
+    "print(f'Final shape with advanced temporal features: {df.shape}')"
    ]
   },
   {
