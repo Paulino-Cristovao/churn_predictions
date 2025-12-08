@@ -31,3 +31,4 @@ ipykernel>=6.25.0
 # Development
 pytest>=7.4.0
 tqdm
+gradio>=4.0.0
