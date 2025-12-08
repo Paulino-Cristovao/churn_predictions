@@ -10,15 +10,29 @@ import seaborn as sns
 sns.set_style("whitegrid")
 plt.rcParams['figure.figsize'] = (14, 10)
 
-# Try to load executed notebook
+# Try to load executed notebook and LSTM results
 try:
     with open('churn_analysis_results.ipynb', 'r') as f:
         nb = json.load(f)
     print("✅ Loaded executed notebook")
 except FileNotFoundError:
     print("⚠️ Using default values from previous runs")
-    # Default values from our best run
     nb = None
+
+# Load LSTM results if available
+lstm_metrics = None
+try:
+    with open('results/lstm_results.json', 'r') as f:
+        lstm_data = json.load(f)
+    lstm_metrics = {
+        'Accuracy': lstm_data['test_accuracy'],
+        'AUC': lstm_data['test_auc'],
+        'PR-AUC': lstm_data['test_pr_auc'],
+        'Brier': lstm_data['test_brier']
+    }
+    print("✅ Loaded LSTM results")
+except FileNotFoundError:
+    print("⚠️ LSTM results not found, using defaults")
 
 # Extract metrics or use defaults
 if nb:
@@ -36,14 +50,18 @@ else:
         'LightGBM': {'Accuracy': 0.675, 'AUC': 0.725, 'PR-AUC': 0.710, 'Brier': 0.190}
     }
 
+# Add LSTM if available
+if lstm_metrics:
+    metrics['LSTM/GRU'] = lstm_metrics
+
 print(f"📊 Comparing {len(metrics)} models")
 
 # Create comprehensive comparison plot
 fig, axes = plt.subplots(2, 2, figsize=(16, 12))
-fig.suptitle('Comprehensive Model Performance Comparison', fontsize=20, fontweight='bold', y=0.995)
+fig.suptitle('Comprehensive 4-Model Performance Comparison', fontsize=20, fontweight='bold', y=0.995)
 
 models = list(metrics.keys())
-colors = ['#FF6B6B', '#4ECDC4', '#45B7D1']  # Red, Teal, Blue
+colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#F7DC6F']  # Red, Teal, Blue, Yellow
 
 # 1. Accuracy Comparison (Top Left)
 ax1 = axes[0, 0]
