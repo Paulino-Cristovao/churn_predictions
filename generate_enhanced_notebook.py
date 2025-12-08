@@ -61,7 +61,9 @@ notebook = {
    "outputs": [],
    "source": [
     "class DataConfig(BaseModel):\n",
-    "    test_size: float = Field(0.2, description=\"Proportion of dataset to include in the test split\")\n",
+    "    subscriptions_path: str = Field('Data/subscriptions.csv', description=\"Path to subscriptions data\")\n",
+    "    daily_usage_path: str = Field('Data/daily_usage.csv', description=\"Path to daily usage data\")\n",
+    "    test_size: float = Field(0.2, description=\"Test set size\")\n",
     "    random_state: int = Field(42, description=\"Random seed for reproducibility\")\n",
     "\n",
     "class LogisticRegressionConfig(BaseModel):\n",
@@ -116,20 +118,13 @@ notebook = {
    "metadata": {},
    "outputs": [],
    "source": [
-    "print(\"Loading data...\")\n",
-    "daily_usage_df = pd.read_csv('Data/daily_usage.csv')\n",
-    "subscriptions_df = pd.read_csv('Data/subscriptions.csv')\n",
-    "\n",
-    "print(f\"Daily Usage shape: {daily_usage_df.shape}\")\n",
-    "print(f\"Subscriptions shape: {subscriptions_df.shape}\")"
-   ]
-  },
-  {
     "# Load Data\n",
     "subscriptions_df = pd.read_csv(config.data.subscriptions_path)\n",
     "daily_usage_df = pd.read_csv(config.data.daily_usage_path)\n",
     "\n",
-    "print(f'Loaded {len(subscriptions_df)} subscriptions and {len(daily_usage_df)} daily usage records')"
+    "print(f'Loaded {len(subscriptions_df)} subscriptions and {len(daily_usage_df)} daily usage records')\n",
+    "print(f'Subscriptions shape: {subscriptions_df.shape}')\n",
+    "print(f'Daily Usage shape: {daily_usage_df.shape}')"
    ]
   },
   {
@@ -604,6 +599,11 @@ notebook = {
    ]
   },
   {
+   "cell_type": "code",
+   "execution_count": None,
+   "metadata": {},
+   "outputs": [],
+   "source": [
     "# Test set performance\n",
     "print('Test Set Results:')\n",
     "print('-' * 60)\n",
@@ -614,7 +614,7 @@ notebook = {
     "    auc_score = roc_auc_score(y_test, y_prob)\n",
     "    print(f'{name}: Accuracy={acc:.4f}, AUC={auc_score:.4f}')\n",
     "    model_metrics[name] = {'Accuracy': acc, 'AUC': auc_score}\n",
-    "print()"
+    "print()\n"
    ]
   },
   {
