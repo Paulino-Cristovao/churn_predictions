@@ -63,7 +63,7 @@ def train_lstm_model(
     num_layers=2,        # GRU default
     dropout=0.3,         # GRU default
     batch_size=32,       # Standard batch size
-    learning_rate=0.001, # Standard LR for Adamax
+    learning_rate=0.05,  # Optimal from LR search (tested 0.01, 0.001, 0.05, 0.005)
     num_epochs=50,       # Sufficient for convergence
     patience=10,         # Early stopping patience
     device='cpu',
