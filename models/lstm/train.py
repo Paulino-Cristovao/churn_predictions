@@ -59,18 +59,18 @@ def prepare_sequence_data(daily_usage_df, subscriptions_df, usage_cols):
 def train_lstm_model(
     X_train, y_train, X_val, y_val,
     input_size,
-    hidden_size=128,
-    num_layers=3,
-    dropout=0.4,
-    batch_size=16,  # Smaller batch for better generalization
-    learning_rate=0.0005,  # Lower LR for stability
-    num_epochs=200,  # More epochs
-    patience=25,  # More patience
+    hidden_size=64,      # GRU default
+    num_layers=2,        # GRU default
+    dropout=0.3,         # GRU default
+    batch_size=32,       # Standard batch size
+    learning_rate=0.001, # Standard LR for Adamax
+    num_epochs=50,       # Sufficient for convergence
+    patience=10,         # Early stopping patience
     device='cpu',
     save_dir='models/lstm'
 ):
     """
-    Train improved LSTM model with optimized hyperparameters
+    Train GRU model with optimized hyperparameters for small datasets
     """
     os.makedirs(save_dir, exist_ok=True)
     
