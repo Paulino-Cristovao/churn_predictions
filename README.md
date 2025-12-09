@@ -16,7 +16,7 @@ This project verifies and implements a robust, end-to-end machine learning solut
 *   **State-of-the-Art Models**: Compare **LightGBM**, **XGBoost**, **Logistic Regression**, **GRU (RNN)**, and **Transformer**.
 | Model | ROC-AUC | PR-AUC | Notes |
 | :--- | :--- | :--- | :--- |
-| **LightGBM + Optuna** | 0.8064 | 0.8483 | **Best Single Model** (Fast & Accurate) |
+| **LightGBM + Optuna** | 0.7976 | 0.8414 | **Best Single Model** (Fast & Accurate) |
 
 ### 🏆 Pourquoi LightGBM & l'Ensemble gagnent ?
 LightGBM gère mieux les données tabulaires denses que les réseaux de neurones sur ce petit volume de données. Il capture efficacement les interactions non-linéaires sans nécessiter des milliers d'exemples comme le Deep Learning.
@@ -44,7 +44,7 @@ The analysis is based on two primary datasets provided in the case study:
 
 | Model | Accuracy | ROC-AUC | PR-AUC | Calibration (Brier) |
 | :--- | :--- | :--- | :--- | :--- |
-| **LightGBM** | **75.9%** | **0.797** | **0.839** | **0.194** |
+| **LightGBM** | **71.1%** | **0.798** | **0.841** | **0.194** |
 | **GRU (RNN)** | 68.7% | 0.715 | 0.764 | 0.213 |
 | **Logistic Regression** | 65.1% | 0.684 | 0.769 | 0.229 |
 | **Transformer** | 62.7% | 0.678 | 0.706 | 0.221 |

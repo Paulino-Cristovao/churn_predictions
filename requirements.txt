@@ -34,3 +34,4 @@ tqdm
 gradio>=4.0.0
 shap
 optuna
+python-pptx>=0.6.21
