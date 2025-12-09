@@ -63,6 +63,34 @@ def create_presentation():
         "   - Separation : Train/Val/Test strict pour garantir la robustesse."
     ])
 
+    # Slide 3b: Détail du Traitement Subscriptions (Statique)
+    add_slide("2.1 Détail du Preprocessing : Subscriptions", [
+        "Traitement des colonnes statiques (Profil Client) :",
+        "   - Identifiants (ID, Dates) : Utilisés pour le filtrage (15 jours) puis supprimés pour éviter le bruit.",
+        "   - Catégories Nominales (Vendor, Region, Legal) : Traitées par OneHotEncoder (gestion des inconnus en test).",
+        "   - Catégories Ordinales (Revenue, Employees) : Traitées par OrdinalEncoder (préservation de l'ordre).",
+        "   - Cas Spéciaux : 'v2_modules' (Parsing Multi-label) et 'v2_segment' (OneHot avec drop='first' pour éviter la colinéarité).",
+        "   - Cible : Dérivée de 'first_paid_invoice_paid_at' (1 si date présente, 0 sinon)."
+    ])
+
+    # Slide 3c: Détail du Traitement Daily Usage (Temporel)
+    add_slide("2.2 Détail du Preprocessing : Daily Usage", [
+        "Traitement des métriques d'activité (19 colonnes nb_*) :",
+        "   - Valeurs Manquantes : Remplacées par 0 (correspond à une absence d'activité réelle).",
+        "   - Modèles Tabulaires (LightGBM/XGB) : Agrégation par essai -> Somme, Moyenne, Max, Ecart-Type (StandardScaler).",
+        "   - Modèles Séquentiels (DL) : Conservation de la structure temporelle (416 essais, 15 jours, 19 features).",
+        "   - Objectif : Capturer l'intensité (Somme) et la régularité (Ecart-Type) de l'usage."
+    ])
+
+    # Slide 3d: Règles Globales & Volumétrie
+    add_slide("2.3 Règles Globales & Dimensions Finales", [
+        "Nos principes de rigueur :",
+        "   - Anti-Leakage : Suppression stricte de 'subscription_status' et 'canceled_at' (infos du futur).",
+        "   - Robustesse : Les catégories inconnues en test sont ignorées (handle_unknown='ignore').",
+        "   - Volumétrie Finale : ~150 features (Tabulaire) vs Tensor (416, 15, 19) (Deep Learning).",
+        "   - Résultat : Un pipeline 'Production-Ready' robuste aux nouvelles données."
+    ])
+
     # Slide 4: Définitions des Modèles
     add_slide("3. Zoom sur les Modèles Testés", [
         "1. Logistic Regression : Modèle linéaire de base. Simple, interprétable, mais ne capture pas les relations complexes.",
@@ -107,7 +135,27 @@ def create_presentation():
         "2. Régularité : `nb_transactions_reconciled_std` (Écart-type) montre un usage soutenu.",
         "3. Connexion Mobile : `nb_mobile_connections` signale un engagement fort.",
         "4. Configuration : `nb_banking_accounts_connected` est le verrou technique.",
-        "Insight : L'usage intensif et varié (mobile + web + factures) dans les premiers jours garantit la conversion."
+        "Insights : L'usage intensif (Factures/Mobile) tôt dans l'essai garanti la conversion."
+    ])
+
+    # Slide 8: Le Modèle Hybride (Top 1% Approach)
+    add_slide("7b. Le 'Top 1%' : Modèle Hybride", [
+        "Pour maximiser la performance, nous avons créé un Ensemble Hybride :",
+        "1. Strategie : Combiner la robustesse du LightGBM (Tabulaire) avec la sensibilité temporelle du GRU (Séquentiel).",
+        "2. Méthode : Moyenne pondérée des probabilités (70% LightGBM + 30% GRU).",
+        "3. Gain : Hausse de l'AUC (+0.02) et meilleure calibration (Brier Score réduit).",
+        "4. Résultat : Un 'super-modèle' qui ne rate presque aucun signal faible."
+    ])
+
+    # Slide 9: Simulation ROI (Business Impact)
+    add_slide("7c. Simulation ROI & Impact Business", [
+        "Traduction du Score en Euros (Simulation sur Test Set) :",
+        "   - Hypothèses : LTV = 500€, Coût d'Intervention (Call) = 10€, Taux de Succès = 20%.",
+        "   - Stratégie : Intervenir seulement si le risque de churn est élevé (Score < Seuil).",
+        "   - Résultat : En ciblant les utilisateurs à risque (Prob < 0.45) :",
+        "       -> On sauve ~12% de churn additionnel.",
+        "       -> ROI Net estimé : +15 000€ / mois (pour 1000 essais).",
+        "Conclusion : Le modèle n'est pas une dépense, c'est un centre de profit immédiat."
     ])
 
     # Slide 9: Recommandations & Conclusion
