@@ -10,13 +10,27 @@
 ---
 
 ## Executive Summary
-This project provides a robust, end-to-end machine learning solution to predict customer churn for **Kolecto**. By analyzing usage patterns (15 days history) and rich company firmographics (`subscriptions.csv`), the system identifies at-risk clients with high precision.
+This project verifies and implements a robust, end-to-end machine learning solution to predict customer churn for **Kolecto**, based on a case study of SaaS trial conversions. By analyzing **~11,600 daily usage records** and **~500 subscriptions** (filtered to **416 exact 15-day trials** for consistency), the system identifies significantly predictive signals of conversion (**~60% conversion rate**) versus cancellation.
 
 **Key Highlights:**
 *   **State-of-the-Art Models**: Compare **LightGBM**, **XGBoost**, **Logistic Regression**, **GRU (RNN)**, and **Transformer**.
-*   **Deep Feature Engineering**: Automates the processing of **157 features**, using standard scaling for metrics and One-Hot/Ordinal encoding for categorical data like *NAF Codes, Revenue Ranges, and Legal Structures*.
+*   **Deep Feature Engineering**: Automates the processing of **157 features**, aggregating **19 daily usage metrics** (e.g., `nb_transfers_sent`, `nb_mobile_connections`) via sum/mean/max/std, combined with categorical firmographics like *NAF Codes* and *Revenue Ranges*.
 *   **Interactive Application**: A user-friendly Gradio web interface (`app.py`) for real-time scoring.
-*   **Top Performance**: **LightGBM** achieves **AUC 0.80**, significantly outperforming baselines.
+*   **Top Performance**: **LightGBM** achieves **AUC ~0.80**, capturing non-linear interactions better than baselines.
+
+---
+
+## Data Sources & Structure
+The analysis is based on two primary datasets provided in the case study:
+
+*   **`subscriptions.csv`**: Static information on trials.
+    *   **Size**: ~503 raw rows, filtered to 416 for analysis.
+    *   **Key Fields**: `subscription_id`, `trial_starts_at` (2023-2024 range), `v2_segment` (e.g., "TPE/PME"), `naf_section`, `revenue_range`.
+    *   **Target**: Derived from `first_paid_invoice_paid_at` (1 = Converted, 0 = Churn).
+*   **`daily_usage.csv`**: Time-series activity log.
+    *   **Size**: ~11,685 rows.
+    *   **Key Fields**: `day_date`, and 19+ activity counters (e.g., `nb_client_invoices_created`, `nb_banking_accounts_connected`).
+    *   **Processing**: Aggregated to single-row features per subscription to capture total engagement and variability.
 
 ---
 
@@ -24,11 +38,11 @@ This project provides a robust, end-to-end machine learning solution to predict 
 
 | Model | Accuracy | ROC-AUC | PR-AUC | Calibration (Brier) |
 | :--- | :--- | :--- | :--- | :--- |
-| **LightGBM** | **72.3%** | **0.803** | **0.842** | **0.191** |
-| **Transformer** | 61.4% | 0.738 | 0.737 | 0.225 |
-| **LSTM/GRU** | 68.7% | 0.730 | 0.785 | 0.201 |
-| **Logistic Regression** | 69.9% | 0.689 | 0.760 | 0.225 |
-| **XGBoost** | 63.9% | 0.672 | 0.777 | 0.246 |
+| **LightGBM** | **75.9%** | **0.797** | **0.839** | **0.194** |
+| **GRU (RNN)** | 68.7% | 0.715 | 0.764 | 0.213 |
+| **Logistic Regression** | 65.1% | 0.684 | 0.769 | 0.229 |
+| **Transformer** | 62.7% | 0.678 | 0.706 | 0.221 |
+| **XGBoost** | 63.9% | 0.671 | 0.772 | 0.242 |
 
 > *See [docs/METRICS_EXPLANATION.md](docs/METRICS_EXPLANATION.md) for details on these metrics.*
 
