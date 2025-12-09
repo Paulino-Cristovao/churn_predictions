@@ -9,23 +9,31 @@ import datetime
 OUTPUT_FILE = "Presentations_Resultats_Projet.pptx"
 IMG_DIR = "results/figures"
 
-# Define Image Paths (Verify these exist)
+# Define Image Paths
 IMG_COMPARISON = os.path.join(IMG_DIR, "comparison/model_comparison.png")
 IMG_OPTUNA = os.path.join(IMG_DIR, "lightgbm/lgbm_optimization_history.png") 
 IMG_GRU_LOSS = os.path.join(IMG_DIR, "gru/gru_training_loss.png")
 IMG_TRANSFORMER_LOSS = os.path.join(IMG_DIR, "transformer/transformer_training_loss.png")
 IMG_XGB_IMP = os.path.join(IMG_DIR, "xgboost/xgb_feature_importance.png")
+IMG_LOGO = os.path.join(IMG_DIR, "kolecto_logo.png")
 
 # Start Presentation
 prs = Presentation()
 
 # --- Helper Functions ---
-def create_title_slide(prs, title, subtitle, author):
+def create_title_slide(prs, title, subtitle, author, logo_path=None):
     slide_layout = prs.slide_layouts[0] # Title Slide
     slide = prs.slides.add_slide(slide_layout)
     slide.shapes.title.text = title
     if slide.placeholders[1]:
         slide.placeholders[1].text = f"{subtitle}\n\n{author}"
+    
+    # Add Logo if exists
+    if logo_path and os.path.exists(logo_path):
+        left = Inches(0.5)
+        top = Inches(0.5)
+        height = Inches(1.0) # Adjust size as needed
+        slide.shapes.add_picture(logo_path, left, top, height=height)
 
 def add_content_slide(prs, title, content_lines, image_path=None):
     slide_layout = prs.slide_layouts[1] # Title and Content
@@ -67,7 +75,8 @@ create_title_slide(
     prs, 
     "Prédiction de Conversion Trial-to-Paid :\nInsights Data-Driven pour Kolecto", 
     "Améliorer le taux de conversion de ~60% via l'analyse des signaux précurseurs et le Machine Learning",
-    f"Antigravity Agent – {datetime.date.today()}"
+    f"Antigravity Agent – {datetime.date.today()}",
+    logo_path=IMG_LOGO
 )
 
 # Slide 2: Business Context
