@@ -17,10 +17,9 @@ This project verifies and implements a robust, end-to-end machine learning solut
 | Model | ROC-AUC | PR-AUC | Notes |
 | :--- | :--- | :--- | :--- |
 | **LightGBM + Optuna** | 0.8064 | 0.8483 | **Best Single Model** (Fast & Accurate) |
-| **Hybrid Ensemble** | **0.82+**| **0.86+**| **Top 1% Strategy** (LGBM + GRU Weighted Avg) |
 
 ### 🏆 Pourquoi LightGBM & l'Ensemble gagnent ?
-LightGBM gère mieux les données tabulaires denses que les réseaux de neurones sur ce petit volume de données. L'approche **Hybride** combine cette force avec la capacité du GRU à détecter des séquences d'actions subtiles (ex: régularité de connexion), poussant la performance au maximum.
+LightGBM gère mieux les données tabulaires denses que les réseaux de neurones sur ce petit volume de données. Il capture efficacement les interactions non-linéaires sans nécessiter des milliers d'exemples comme le Deep Learning.
 *   **Deep Feature Engineering**: Automates the processing of **157 features**, aggregating **19 daily usage metrics** (e.g., `nb_transfers_sent`, `nb_mobile_connections`) via sum/mean/max/std, combined with categorical firmographics like *NAF Codes* and *Revenue Ranges*.
 *   **Interactive Application**: A user-friendly Gradio web interface (`app.py`) for real-time scoring.
 *   **Top Performance**: **LightGBM** achieves **AUC ~0.80**, capturing non-linear interactions better than baselines.
@@ -126,7 +125,6 @@ All detailed documentation is located in the `docs/` directory:
 │   ├── 01_data_processing.ipynb
 │   ├── ...
 │   └── 07_model_comparison.ipynb
-│   └── 08_hybrid_ensemble.ipynb
 ├── models/                 # PyTorch Model Definitions (GRU/Transformer)
 ├── config/                 # Configuration Files
 ├── docs/                   # Documentation
