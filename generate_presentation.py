@@ -261,9 +261,9 @@ add_content_slide(prs, "Méthodologie & Modèles", [
 slide_5 = create_table_slide(prs, "Comparaison Globale des Résultats", 
     ["Modèle", "ROC-AUC", "PR-AUC", "Accuracy", "Brier Score"], 
     [
-        ["LightGBM (Vainqueur)", "0.790", "0.835", "72.3%", "0.193"],
-        ["GRU (RNN)", "0.713", "0.743", "65.1%", "0.217"],
-        ["Transformer", "0.711", "0.748", "66.3%", "0.211"],
+        ["LightGBM (Vainqueur)", "0.759", "0.795", "73.5%", "0.193"],
+        ["GRU (RNN)", "0.719", "0.766", "68.7%", "0.220"],
+        ["Transformer", "0.716", "0.730", "72.3%", "0.207"],
         ["Logistic Reg.", "0.684", "0.769", "65.1%", "0.229"],
         ["XGBoost", "0.671", "0.772", "63.9%", "0.242"]
     ]
@@ -286,7 +286,7 @@ add_common_design(slide, "Optimisation & Dynamique d'Entraînement")
 content_lines = [
     "LightGBM (Optuna) :",
     "   - Recherche efficace (50 essais).",
-    "   - Convergence vers paramètres robustes (n_est=318, lr=0.018).",
+    "   - Convergence vers paramètres robustes (n_est=165, lr=0.011).",
     "Dynamique Deep Learning :",
     "   - GRU : Bonne baisse de loss training, légère instabilité en validation.",
     "   - Transformer : Signes d'overfitting (Train Loss << Val Loss)."
