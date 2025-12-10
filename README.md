@@ -44,10 +44,10 @@ The analysis is based on two primary datasets provided in the case study:
 
 | Model | Accuracy | ROC-AUC | PR-AUC | Calibration (Brier) |
 | :--- | :--- | :--- | :--- | :--- |
-| **LightGBM** | **71.1%** | **0.798** | **0.841** | **0.194** |
-| **GRU (RNN)** | 68.7% | 0.715 | 0.764 | 0.213 |
+| **LightGBM** | **72.3%** | **0.790** | **0.835** | **0.193** |
+| **GRU (RNN)** | 65.1% | 0.713 | 0.743 | 0.217 |
+| **Transformer** | 66.3% | 0.711 | 0.748 | 0.211 |
 | **Logistic Regression** | 65.1% | 0.684 | 0.769 | 0.229 |
-| **Transformer** | 62.7% | 0.678 | 0.706 | 0.221 |
 | **XGBoost** | 63.9% | 0.671 | 0.772 | 0.242 |
 
 > *See [docs/METRICS_EXPLANATION.md](docs/METRICS_EXPLANATION.md) for details on these metrics.*

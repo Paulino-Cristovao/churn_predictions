@@ -127,15 +127,15 @@ add_content_slide(prs, "Méthodologie & Modèles", [
 # Slide 5: Overall Results
 add_content_slide(prs, "Comparaison des Résultats", [
     "Champion : LightGBM",
-    "   - ROC-AUC : 0.797 (Meilleure Discrimination)",
-    "   - PR-AUC : 0.839 (Haute Précision)",
-    "   - Accuracy : 75.9%",
-    "   - Brier : 0.194 (Bien calibré)",
+    "   - ROC-AUC : 0.790 (Meilleure Discrimination)",
+    "   - PR-AUC : 0.835 (Haute Précision)",
+    "   - Accuracy : 72.3%",
+    "   - Brier : 0.193 (Bien calibré)",
     "Runner Up : GRU",
-    "   - ROC-AUC : 0.715. Capture le signal temporel mais limité par la taille des données.",
+    "   - ROC-AUC : 0.713. Capture le signal temporel mais limité par la taille des données.",
     "Baseline :",
+    "   - Transformer (0.711) - Bon potentiel mais nécessite plus de données.",
     "   - Logistic Regression (0.684).",
-    "   - Transformer (0.678) - Overfitting dû au faible échantillon.",
     "Conclusion : LightGBM gère mieux les données tabulaires haute dimension."
 ], image_path=IMG_COMPARISON)
 
