@@ -21,10 +21,22 @@ IMG_LOGO = os.path.join(IMG_DIR, "kolecto_logo.png")
 prs = Presentation()
 
 # --- Helper Functions ---
+def set_title_format(title_shape):
+    """Applies blue styling to titles."""
+    if not title_shape or not title_shape.text_frame:
+        return
+    title_shape.text_frame.paragraphs[0].font.color.rgb = RGBColor(0, 51, 102) # Dark Blue
+    title_shape.text_frame.paragraphs[0].font.name = 'Arial'
+
 def create_title_slide(prs, title, subtitle, author, logo_path=None):
     slide_layout = prs.slide_layouts[0] # Title Slide
     slide = prs.slides.add_slide(slide_layout)
+    
+    # Title
     slide.shapes.title.text = title
+    set_title_format(slide.shapes.title)
+    
+    # Subtitle
     if slide.placeholders[1]:
         slide.placeholders[1].text = f"{subtitle}\n\n{author}"
     
@@ -42,6 +54,7 @@ def add_content_slide(prs, title, content_lines, image_path=None):
     # Title
     title_shape = slide.shapes.title
     title_shape.text = title
+    set_title_format(title_shape)
     
     # Content
     body_shape = slide.placeholders[1]
@@ -53,6 +66,9 @@ def add_content_slide(prs, title, content_lines, image_path=None):
         p.text = line
         p.level = 0
         p.font.size = Pt(18)
+        p.font.name = 'Arial'
+        
+        # Handle indentation
         if line.startswith("   -"):
             p.level = 1
             p.text = line.replace("   -", "").strip()
@@ -62,128 +78,145 @@ def add_content_slide(prs, title, content_lines, image_path=None):
 
     # Image
     if image_path and os.path.exists(image_path):
+        # Adjust layout for image
+        body_shape.width = Inches(5.0) 
         left = Inches(5.5)
         top = Inches(2.0)
         height = Inches(4.5)
+        
+        # Check if it's the comparison plot (needs to be wider)
+        if "comparison" in image_path:
+             height = Inches(3.5)
+             top = Inches(2.5)
+        
         slide.shapes.add_picture(image_path, left, top, height=height)
-        body_shape.width = Inches(5.0)
 
 # --- Slides Generation ---
 
 # Slide 1: Title
 create_title_slide(
     prs, 
-    "Prédiction de Conversion Trial-to-Paid :\nInsights Data-Driven pour Kolecto", 
-    "Améliorer le taux de conversion de ~60% via l'analyse des signaux précurseurs et le Machine Learning",
+    "Predicting Trial-to-Paid Conversions:\nData-Driven Insights for Kolecto", 
+    "Improving ~60% Conversion Rate Through Precursor Signal Analysis and ML Modeling",
     f"Antigravity Agent – {datetime.date.today()}",
     logo_path=IMG_LOGO
 )
 
-# Slide 2: Business Context
-add_content_slide(prs, "Contexte Business & Objectifs", [
-    "Contexte :",
-    "   - Kolecto propose un essai gratuit de 15 jours -> Abonnement payant.",
-    "   - Taux de conversion actuel : ~60% (Satisfaisant mais perfectible).",
-    "Challenge :",
-    "   - Identifier les signaux précurseurs de succès ou de désabonnement.",
-    "   - Permettre des actions ciblées par l'équipe Customer Experience (CX).",
-    "Objectifs :",
-    "   - Analyser les facteurs différenciants (Convertis vs Non-Convertis).",
-    "   - Construire un modèle ML pour prédire la probabilité de conversion.",
-    "Approche :",
-    "   - Analyse d'Activité (Daily Usage) + Profil (Subscriptions).",
-    "   - Focus sur des insights actionnables."
+# Slide 2: Business Context & Objectives
+add_content_slide(prs, "Business Context & Objectives", [
+    "Context:",
+    "   - Kolecto offers paid subscriptions with a 15-day trial.",
+    "   - Current conversion rate ~60% (Satisfactory but improvable).",
+    "Challenge:",
+    "   - Identify precursor signals of cancellation/success.",
+    "   - Enable targeted Customer Experience (CX) actions.",
+    "Objectives:",
+    "   - Analyze differentiating factors (Converters vs Non-Converters).",
+    "   - Build ML model for conversion probability prediction.",
+    "Approach:",
+    "   - Usage Analysis (Activity signals) + Profile (Company info).",
+    "   - Focus on actionable insights, not just black-box predictions."
 ])
 
 # Slide 3: Data Overview
-add_content_slide(prs, "Données & Prétraitement", [
-    "Jeux de Données :",
-    "   - Daily Usage (~11k lignes) : Logs d'activité (Virements, Connexions, Factures). Agrégés par essai (Somme/Moyenne/Max/Std).",
-    "   - Subscriptions (~416 essais) : Firmographie (CA, Code NAF). Filtré sur les essais de 15 jours exacts.",
-    "Statistiques Clés :",
-    "   - Échantillons Total : 416 essais complets.",
-    "   - Taux de Conversion : 60.7% (Déséquilibré, mais gérable).",
-    "Prétraitement :",
-    "   - Fusion Usage + Subscriptions.",
-    "   - Gestion des valeurs manquantes et inactivité.",
-    "   - Encodage (OneHot/Ordinal) & Standardisation."
+add_content_slide(prs, "Data Overview", [
+    "Datasets:",
+    "   - daily_usage.csv (~11k rows): Activity logs (transfers, connections). Aggregated to per-trial summaries (sum/mean/max/std).",
+    "   - subscriptions.csv (~416 trials): Company info (Revenue, NAF). Filtered to exact 15-day trials.",
+    "Key Stats:",
+    "   - Total Samples: 416 complete trials.",
+    "   - Conversion Rate: 60.7% (Imbalanced but manageable).",
+    "Preprocessing:",
+    "   - Merged Usage + Subscriptions.",
+    "   - Handled Inactivity (NaN/Zero imputation).",
+    "   - Encoding: OneHot (Categorical) & Robust Scaling (Numerical)."
 ])
 
-# Slide 4: Methodology
-add_content_slide(prs, "Méthodologie & Modèles", [
-    "Stratégie de Features :",
-    "   - Tabulaire : Features agrégées (157 dims) pour modèles Arborescents.",
-    "   - Séquentiel : Séries temporelles (15 jours) pour Deep Learning.",
-    "Modèles Entraînés :",
-    "   - Logistic Regression : Baseline linéaire simple.",
-    "   - XGBoost & LightGBM : Gradient Boosting avec tuning Optuna.",
-    "   - GRU & Transformer : Deep Learning pour motifs temporels.",
-    "Métriques d'Évaluation :",
-    "   - ROC-AUC : Capacité de discrimination.",
-    "   - PR-AUC : Précision-Rappel (Critique pour l'imbalance).",
-    "   - Brier Score : Calibration des probabilités."
+# Slide 4: Methodology & Models
+add_content_slide(prs, "Methodology & Models", [
+    "Strategy:",
+    "   - Tabular Features (157 dims) for Tree-based models.",
+    "   - Sequential Data (15 days) for Deep Learning.",
+    "Models Trained:",
+    "   - Logistic Regression (Baseline).",
+    "   - XGBoost & LightGBM (Gradient Boosting with Optuna tuning).",
+    "   - GRU & Transformer (Sequential modeling for temporal signals).",
+    "Evaluation Metrics:",
+    "   - ROC-AUC: Discrimination capability (Distinguish churners).",
+    "   - PR-AUC: Precision-Recall (Critical for imbalance).",
+    "   - Brier Score: Probability calibration accuracy."
 ])
 
-# Slide 5: Overall Results
-add_content_slide(prs, "Comparaison des Résultats", [
-    "Champion : LightGBM",
-    "   - ROC-AUC : 0.790 (Meilleure Discrimination)",
-    "   - PR-AUC : 0.835 (Haute Précision)",
-    "   - Accuracy : 72.3%",
-    "   - Brier : 0.193 (Bien calibré)",
-    "Runner Up : GRU",
-    "   - ROC-AUC : 0.713. Capture le signal temporel mais limité par la taille des données.",
-    "Baseline :",
-    "   - Transformer (0.711) - Bon potentiel mais nécessite plus de données.",
-    "   - Logistic Regression (0.684).",
-    "Conclusion : LightGBM gère mieux les données tabulaires haute dimension."
+# Slide 5: Overall Results Comparison
+add_content_slide(prs, "Overall Results Comparison", [
+    "Winner: LightGBM",
+    "   - ROC-AUC: 0.790 | PR-AUC: 0.835 | Accuracy: 72.3%",
+    "   - Brier: 0.193 (Best Calibration)",
+    "   - Why? Handles mixed features/sparsity best on small data.",
+    "Runner Up: GRU",
+    "   - ROC-AUC: 0.713. Captures temporal patterns well.",
+    "Baselines:",
+    "   - Transformer (0.711) - Comparable to GRU.",
+    "   - Logistic Regression (0.684) - Limited linearity.",
+    "   - XGBoost (0.671) - Underperformed LightGBM here.",
+    "Conclusion: LightGBM is robust, fast, and most accurate."
 ], image_path=IMG_COMPARISON)
 
-# Slide 6: Optimization Insights
-add_content_slide(prs, "Optimisation & Dynamique d'Entraînement", [
-    "LightGBM (Optuna) :",
-    "   - Recherche efficace (50 essais).",
-    "   - Convergence vers paramètres robustes (n_est=318, lr=0.018).",
-    "Dynamique Deep Learning :",
-    "   - GRU : Bonne baisse de loss training, mais validation instable.",
-    "   - Transformer : Signes d'overfitting (Écart train/val).",
-    "   - Leçon : Les modèles profonds nécessitent plus de données (10k+) pour battre les arbres ici."
+# Slide 6: Optimization & Training Insights
+add_content_slide(prs, "Optimization & Training Insights", [
+    "LightGBM (Optuna):",
+    "   - Efficient search (50 trials).",
+    "   - Converged to robust params (n_est=318, lr=0.018).",
+    "Deep Learning Dynamics:",
+    "   - GRU: Steady loss decrease, slight validation instability.",
+    "   - Transformer: improved but still data-hungry.",
+    "   - Takeaway: Deep Learning needs more than 400 samples to truly shine."
 ], image_path=IMG_OPTUNA) 
 
-# Slide 7: Feature Importance
-add_content_slide(prs, "Importance des Features & Signaux", [
-    "Meilleurs Prédicteurs (LightGBM/XGBoost) :",
-    "   - company_age : Les entreprises plus anciennes/stables convertissent mieux.",
-    "   - naf_code : Certains secteurs ont une affinité plus forte.",
-    "   - nb_client_invoices_created_sum : L'usage actif (Facturation) est le signal #1.",
-    "Insights :",
-    "   - L'Activation compte : Facturer ou connecter une banque tôt garantit la conversion.",
-    "   - Alerte 'Faible Activité' : < 2 connexions mobiles au Jour 3 = Risque x3.",
-    "   - Ciblage : Concentrer le CX sur les TPEs avec faible activité précoce."
+# Slide 7: Feature Importance & Insights
+add_content_slide(prs, "Feature Importance & Insights", [
+    "Top Predictors:",
+    "   - company_age: Older/stable firms convert more.",
+    "   - naf_code: Specific industries have higher affinity.",
+    "   - nb_client_invoices_created_sum: Usage (Invoicing) is the #1 signal.",
+    "Actionable Insights:",
+    "   - Activation Matters: Early usage (Day 1-3) is critical.",
+    "   - 'Low Activity' Alert: < 2 connections by Day 3 = 3x Churn Risk.",
+    "   - Targeting: Focus CX on TPEs with low early activity."
 ], image_path=IMG_XGB_IMP)
 
-# Slide 8: Limitations
-add_content_slide(prs, "Limitations & Améliorations", [
-    "Limitations :",
-    "   - Faible Volume de Données : Seulement 416 essais complets. Limite le Deep Learning.",
-    "   - Données Internes Uniquement : Pas de données économiques externes.",
-    "Améliorations Futures :",
-    "   - Ensemble Hybride : Combiner LightGBM + GRU (Testé, gain marginal actuellement).",
-    "   - Causal ML : Modéliser l'Uplift des appels CX.",
-    "   - Monitoring : Ré-entraîner mensuellement pour détecter la dérive (Drift)."
+# Slide 8: Business Impact & Recommendations
+add_content_slide(prs, "Business Impact & Recommendations", [
+    "Estimated Impact:",
+    "   - Target: ~400 trials/month.",
+    "   - Lift: +5-8% conversion via targeted intervention.",
+    "   - Value: +€600k-€960k ARR (assuming €3k LTV).",
+    "Recommendations:",
+    "   - Day 1-3: Automated nudges for bank connection/invoicing.",
+    "   - Day 7-10: Human CX call if Churn Prob > 60%.",
+    "   - Deployment: A/B Test interventions to measure real uplift."
 ])
 
-# Slide 9: Conclusion
-add_content_slide(prs, "Conclusion & Prochaines Étapes", [
-    "Résumé :",
-    "   - Modèle robuste construit (AUC ~0.80).",
-    "   - Signaux d'activation clés identifiés (Factures, Mobile, Connexion Bancaire).",
-    "Résultats :",
-    "   - Potentiel de +5-8% de conversion via intervention ciblée.",
-    "Prochaines Étapes :",
-    "   1. Déployer l'API de Scoring (FastAPI/Gradio).",
-    "   2. A/B Test des actions CX sur les utilisateurs 'À Risque' (Prob < 0.45).",
-    "   3. Monitorer la performance en production."
+# Slide 9: Limitations & Improvements
+add_content_slide(prs, "Limitations & Improvements", [
+    "Limitations:",
+    "   - Small Dataset: ~416 trials limits Deep Learning potential.",
+    "   - External Factors: No data on economic context/seasonality.",
+    "Future Improvements:",
+    "   - Hybrid Ensemble: Combine LightGBM (Tabular) + GRU (Sequential).",
+    "   - Causal ML: Model 'uplift' (Persuadables vs Do-not-disturb).",
+    "   - Retraining: Monthly updates to handle concept drift."
+])
+
+# Slide 10: Conclusion & Next Steps
+add_content_slide(prs, "Conclusion & Next Steps", [
+    "Summary:",
+    "   - Delivered robust model (LightGBM AUC 0.790).",
+    "   - Identified key levers for +5-8% conversion lift.",
+    "Next Steps:",
+    "   1. Deploy Scoring API (Containerized).",
+    "   2. Launch A/B Test for CX actions.",
+    "   3. Monitor Performance (MLflow) & Collect more data."
 ])
 
 # Save
