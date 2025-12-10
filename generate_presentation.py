@@ -91,9 +91,10 @@ def add_content_slide(prs, title, content_lines, image_path=None):
         
         slide.shapes.add_picture(image_path, left, top, height=height)
 
-# --- Slides Generation ---
+# --- Slides Generation (Step-by-Step) ---
 
-# Slide 1: Title
+# Slide 1: Title Slide
+# "Sets a professional tone; Hooks with the problem"
 create_title_slide(
     prs, 
     "Predicting Trial-to-Paid Conversions:\nData-Driven Insights for Kolecto", 
@@ -103,12 +104,13 @@ create_title_slide(
 )
 
 # Slide 2: Business Context & Objectives
+# "Frames results as solving a real business need"
 add_content_slide(prs, "Business Context & Objectives", [
     "Context:",
     "   - Kolecto offers paid subscriptions with a 15-day trial.",
     "   - Current conversion rate ~60% (Satisfactory but improvable).",
     "Challenge:",
-    "   - Identify precursor signals of cancellation/success.",
+    "   - Identify precursor signals of cancellation/success early.",
     "   - Enable targeted Customer Experience (CX) actions.",
     "Objectives:",
     "   - Analyze differentiating factors (Converters vs Non-Converters).",
@@ -119,96 +121,106 @@ add_content_slide(prs, "Business Context & Objectives", [
 ])
 
 # Slide 3: Data Overview
+# "Builds credibility—shows you understood the data"
 add_content_slide(prs, "Data Overview", [
     "Datasets:",
-    "   - daily_usage.csv (~11k rows): Activity logs (transfers, connections). Aggregated to per-trial summaries (sum/mean/max/std).",
+    "   - daily_usage.csv (~11k rows): Activity logs (Transfers, Connections). Aggregated to per-trial summaries.",
     "   - subscriptions.csv (~416 trials): Company info (Revenue, NAF). Filtered to exact 15-day trials.",
     "Key Stats:",
-    "   - Total Samples: 416 complete trials.",
+    "   - Total Samples: 416 complete trials (Filtered from ~500).",
     "   - Conversion Rate: 60.7% (Imbalanced but manageable).",
     "Preprocessing:",
-    "   - Merged Usage + Subscriptions.",
-    "   - Handled Inactivity (NaN/Zero imputation).",
+    "   - Merged Usage + Subscriptions on 'subscription_id'.",
+    "   - Handled Inactivity (NaN/Zero imputation for missing days).",
     "   - Encoding: OneHot (Categorical) & Robust Scaling (Numerical)."
 ])
 
 # Slide 4: Methodology & Models
+# "Highlights rigor (Optuna, multiple models)"
 add_content_slide(prs, "Methodology & Models", [
     "Strategy:",
-    "   - Tabular Features (157 dims) for Tree-based models.",
-    "   - Sequential Data (15 days) for Deep Learning.",
+    "   - Tabular Features (157 dims): Sum/Mean/Max/Std of daily activities.",
+    "   - Sequential Data (15 days): Time-series for Deep Learning.",
     "Models Trained:",
     "   - Logistic Regression (Baseline).",
     "   - XGBoost & LightGBM (Gradient Boosting with Optuna tuning).",
     "   - GRU & Transformer (Sequential modeling for temporal signals).",
     "Evaluation Metrics:",
-    "   - ROC-AUC: Discrimination capability (Distinguish churners).",
+    "   - ROC-AUC: Discrimination capability (Primary Metric).",
     "   - PR-AUC: Precision-Recall (Critical for imbalance).",
     "   - Brier Score: Probability calibration accuracy."
 ])
 
 # Slide 5: Overall Results Comparison
+# "Visual proof of superiority—Convincing with data"
 add_content_slide(prs, "Overall Results Comparison", [
     "Winner: LightGBM",
-    "   - ROC-AUC: 0.790 | PR-AUC: 0.835 | Accuracy: 72.3%",
+    "   - ROC-AUC: 0.790 (Best Discrimination)",
+    "   - PR-AUC: 0.835 | Accuracy: 72.3%",
     "   - Brier: 0.193 (Best Calibration)",
     "   - Why? Handles mixed features/sparsity best on small data.",
-    "Runner Up: GRU",
+    "Runner Up: GRU (RNN)",
     "   - ROC-AUC: 0.713. Captures temporal patterns well.",
     "Baselines:",
     "   - Transformer (0.711) - Comparable to GRU.",
     "   - Logistic Regression (0.684) - Limited linearity.",
-    "   - XGBoost (0.671) - Underperformed LightGBM here.",
-    "Conclusion: LightGBM is robust, fast, and most accurate."
+    "Conclusion: LightGBM is robust, fast, and most accurate.",
+    "   (See Bar Charts ->)"
 ], image_path=IMG_COMPARISON)
 
 # Slide 6: Optimization & Training Insights
+# "Shows methodological strength (tuning, monitoring overfit)"
 add_content_slide(prs, "Optimization & Training Insights", [
     "LightGBM (Optuna):",
     "   - Efficient search (50 trials).",
     "   - Converged to robust params (n_est=318, lr=0.018).",
     "Deep Learning Dynamics:",
     "   - GRU: Steady loss decrease, slight validation instability.",
-    "   - Transformer: improved but still data-hungry.",
-    "   - Takeaway: Deep Learning needs more than 400 samples to truly shine."
+    "   - Transformer: Signs of overfitting (Train Loss << Val Loss).",
+    "   - Takeaway: Deep Learning needs more than 400 samples to outperform Trees.",
+    "   (See Optimization History ->)"
 ], image_path=IMG_OPTUNA) 
 
 # Slide 7: Feature Importance & Insights
+# "Translates tech to business—Convincing for actionable value"
 add_content_slide(prs, "Feature Importance & Insights", [
     "Top Predictors:",
     "   - company_age: Older/stable firms convert more.",
     "   - naf_code: Specific industries have higher affinity.",
-    "   - nb_client_invoices_created_sum: Usage (Invoicing) is the #1 signal.",
+    "   - nb_client_invoices_created_sum: Active usage is the #1 signal.",
     "Actionable Insights:",
     "   - Activation Matters: Early usage (Day 1-3) is critical.",
     "   - 'Low Activity' Alert: < 2 connections by Day 3 = 3x Churn Risk.",
-    "   - Targeting: Focus CX on TPEs with low early activity."
+    "   - Targeting: Focus CX on TPEs with low early activity and high churn prob."
 ], image_path=IMG_XGB_IMP)
 
 # Slide 8: Business Impact & Recommendations
+# "Quantifies value—Highly convincing for hiring"
 add_content_slide(prs, "Business Impact & Recommendations", [
     "Estimated Impact:",
     "   - Target: ~400 trials/month.",
     "   - Lift: +5-8% conversion via targeted intervention.",
-    "   - Value: +€600k-€960k ARR (assuming €3k LTV).",
+    "   - Value Calc: 400 * 0.05 * €3k (LTV) = ~€60k/month -> €720k/year.",
     "Recommendations:",
-    "   - Day 1-3: Automated nudges for bank connection/invoicing.",
-    "   - Day 7-10: Human CX call if Churn Prob > 60%.",
+    "   - Day 1-3 (Automated): Nudge users if 'nb_connections' < 2.",
+    "   - Day 7-10 (Human): CX call if Churn Prob > 60%.",
     "   - Deployment: A/B Test interventions to measure real uplift."
 ])
 
 # Slide 9: Limitations & Improvements
+# "Shows self-awareness—Balanced and professional"
 add_content_slide(prs, "Limitations & Improvements", [
     "Limitations:",
     "   - Small Dataset: ~416 trials limits Deep Learning potential.",
-    "   - External Factors: No data on economic context/seasonality.",
+    "   - External Factors: No data on economic context or seasonality.",
     "Future Improvements:",
     "   - Hybrid Ensemble: Combine LightGBM (Tabular) + GRU (Sequential).",
     "   - Causal ML: Model 'uplift' (Persuadables vs Do-not-disturb).",
-    "   - Retraining: Monthly updates to handle concept drift."
+    "   - Continuous Training: Retrain monthly to handle data drift."
 ])
 
 # Slide 10: Conclusion & Next Steps
+# "Strong close—Reiterates impact"
 add_content_slide(prs, "Conclusion & Next Steps", [
     "Summary:",
     "   - Delivered robust model (LightGBM AUC 0.790).",
@@ -216,7 +228,9 @@ add_content_slide(prs, "Conclusion & Next Steps", [
     "Next Steps:",
     "   1. Deploy Scoring API (Containerized).",
     "   2. Launch A/B Test for CX actions.",
-    "   3. Monitor Performance (MLflow) & Collect more data."
+    "   3. Monitor Performance (MLflow) & Collect more data.",
+    " ",
+    "Thank You! Questions?"
 ])
 
 # Save
