@@ -23,21 +23,30 @@ SLIDE_WIDTH = prs.slide_width
 SLIDE_HEIGHT = prs.slide_height
 
 # --- Helper Functions ---
-def set_text_format(run, size=18, bold=False, color=None):
+def set_font(run, size=18, bold=False, color=None):
     run.font.name = 'Times New Roman'
     run.font.size = Pt(size)
     run.font.bold = bold
     if color:
         run.font.color.rgb = color
 
-def set_title_format(title_shape):
-    """Applies blue styling to titles and Times New Roman font."""
-    if not title_shape or not title_shape.text_frame:
-        return
-    paragraph = title_shape.text_frame.paragraphs[0]
-    paragraph.font.color.rgb = RGBColor(0, 51, 102) # Dark Blue
-    paragraph.font.name = 'Times New Roman'
-    paragraph.font.bold = True
+def add_common_design(slide, title_text):
+    """Applies common design elements: Blue Title, Logo."""
+    # Title
+    if slide.shapes.title:
+        slide.shapes.title.text = title_text
+        paragraph = slide.shapes.title.text_frame.paragraphs[0]
+        paragraph.font.color.rgb = RGBColor(0, 51, 102) # Dark Blue
+        paragraph.font.name = 'Times New Roman'
+        paragraph.font.bold = True
+        paragraph.font.size = Pt(36) # Standardize title size
+        
+    # Logo (Top Right)
+    if os.path.exists(IMG_LOGO):
+        logo_width = Inches(1.2)
+        logo_left = SLIDE_WIDTH - logo_width - Inches(0.2)
+        logo_top = Inches(0.2)
+        slide.shapes.add_picture(IMG_LOGO, logo_left, logo_top, width=logo_width)
 
 def create_title_slide(prs, title, subtitle, author, logo_path=None):
     slide_layout = prs.slide_layouts[0] # Title Slide
@@ -45,7 +54,10 @@ def create_title_slide(prs, title, subtitle, author, logo_path=None):
     
     # Title
     slide.shapes.title.text = title
-    set_title_format(slide.shapes.title)
+    paragraph = slide.shapes.title.text_frame.paragraphs[0]
+    paragraph.font.color.rgb = RGBColor(0, 51, 102) 
+    paragraph.font.name = 'Times New Roman'
+    paragraph.font.bold = True
     
     # Subtitle
     if slide.placeholders[1]:
@@ -53,72 +65,107 @@ def create_title_slide(prs, title, subtitle, author, logo_path=None):
         for paragraph in slide.placeholders[1].text_frame.paragraphs:
             paragraph.font.name = 'Times New Roman'
     
-    # Add Logo if exists
+    # Large Logo for Title Slide
     if logo_path and os.path.exists(logo_path):
         left = Inches(0.5)
         top = Inches(0.5)
-        height = Inches(1.0) # Adjust size as needed
+        height = Inches(1.0) 
         slide.shapes.add_picture(logo_path, left, top, height=height)
 
 def add_content_slide(prs, title, content_lines, image_path=None):
-    slide_layout = prs.slide_layouts[1] # Title and Content
+    # Use Layout 5 (Title Only) for manual control
+    slide_layout = prs.slide_layouts[5] 
     slide = prs.slides.add_slide(slide_layout)
     
-    # Title
-    title_shape = slide.shapes.title
-    title_shape.text = title
-    set_title_format(title_shape)
+    # Apply Common Design (Title + Logo)
+    add_common_design(slide, title)
     
-    # Content
-    body_shape = slide.placeholders[1]
-    tf = body_shape.text_frame
-    tf.clear() 
+    # Content Box
+    left = Inches(0.5)
+    top = Inches(1.5)
+    width = Inches(5.0) if image_path else Inches(9.0)
+    height = Inches(5.0)
+    
+    txBox = slide.shapes.add_textbox(left, top, width, height)
+    tf = txBox.text_frame
+    tf.word_wrap = True
     
     for line in content_lines:
         p = tf.add_paragraph()
         p.text = line
-        p.level = 0
         p.font.size = Pt(18)
         p.font.name = 'Times New Roman'
+        # Emulate bullet spacing
+        p.space_after = Pt(10)
         
-        # Handle indentation
+        # indent logic
         if line.startswith("   -"):
             p.level = 1
-            p.text = line.replace("   -", "").strip()
+            p.text = line.replace("   -", "\u2022 ").strip() # Bullet char
+            p.font.size = Pt(16)
         elif line.startswith("       ->"):
             p.level = 2
-            p.text = line.replace("       ->", "").strip()
+            p.text = line.replace("       ->", "- ").strip()
+            p.font.size = Pt(14)
+        else:
+            p.text = "\u2022 " + p.text # Top level bullet
 
-    # Image (Centered)
+    # Image (Centered horizontally in remaining space or right side)
     if image_path and os.path.exists(image_path):
-        # Resize content to make room (top half)
-        body_shape.height = Inches(3.0)
+        img_left = Inches(6.0)
+        img_top = Inches(1.5)
+        img_width = Inches(3.5)
         
-        # Place image centered below content
-        img_height = Inches(3.5)
-        if "comparison" in image_path:
-             img_height = Inches(3.0)
-        
-        # Calculate aspect ratio to center
-        # Assuming typical aspect ratio, but simply centering predefined width/height
-        img_left = (SLIDE_WIDTH - Inches(6.0)) / 2
-        img_top = Inches(4.0)
-        
-        slide.shapes.add_picture(image_path, img_left, img_top, width=Inches(6.0))
+        # Special handling for wide images or centered layouts
+        if "comparison" in image_path or "feature" in image_path:
+             # Center below text
+             # Actually, user liked Centered. Let's make text full width top, image centered bottom?
+             # Or side-by-side. The prompt asked for "Centered the result images" before.
+             # Let's do Side-by-side for vertical fit, or Top-Bottom.
+             
+             # Re-adjusting for visual balance:
+             # Resize text box
+             txBox.width = Inches(9.0)
+             txBox.height = Inches(2.5) # Shorten text area
+             
+             # Image Centered Bottom
+             img_height = Inches(3.2)
+             if "comparison" in image_path:
+                 img_height = Inches(3.0)
+             
+             # Load image to get aspect ratio? No, just fit to constraints
+             # Add picture
+             pic = slide.shapes.add_picture(image_path, Inches(0), Inches(0)) # Temp insert
+             
+             # Scale
+             ratio = pic.width / pic.height
+             new_height = img_height
+             new_width = new_height * ratio
+             if new_width > Inches(8.5):
+                 new_width = Inches(8.5)
+                 new_height = new_width / ratio
+            
+             pic.width = int(new_width)
+             pic.height = int(new_height)
+             pic.left = int((SLIDE_WIDTH - pic.width) / 2)
+             pic.top = int(Inches(4.2))
+             
+        else:
+             # Default Side placement
+             slide.shapes.add_picture(image_path, img_left, img_top, width=img_width)
 
 def create_table_slide(prs, title, headers, data, notes=None):
-    slide_layout = prs.slide_layouts[5] # Title Only (allowing full custom table)
+    slide_layout = prs.slide_layouts[5] # Title Only
     slide = prs.slides.add_slide(slide_layout)
     
-    # Title
-    slide.shapes.title.text = title
-    set_title_format(slide.shapes.title)
+    # Apply Common Design
+    add_common_design(slide, title)
     
     # Table Config
     rows = len(data) + 1
     cols = len(headers)
     table_left = Inches(1.0)
-    table_top = Inches(1.5)
+    table_top = Inches(2.0) # Lower top to clear logo/title
     table_width = Inches(8.0)
     table_height = Inches(0.5 * rows)
     
@@ -130,8 +177,8 @@ def create_table_slide(prs, title, headers, data, notes=None):
         cell = table.cell(0, i)
         cell.text = header
         cell.fill.solid()
-        cell.fill.fore_color.rgb = RGBColor(0, 51, 102) # Dark Blue header
-        cell.text_frame.paragraphs[0].font.color.rgb = RGBColor(255, 255, 255) # White text
+        cell.fill.fore_color.rgb = RGBColor(0, 51, 102) # Dark Blue
+        cell.text_frame.paragraphs[0].font.color.rgb = RGBColor(255, 255, 255)
         cell.text_frame.paragraphs[0].font.bold = True
         cell.text_frame.paragraphs[0].font.name = 'Times New Roman'
         cell.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
@@ -147,7 +194,7 @@ def create_table_slide(prs, title, headers, data, notes=None):
             
     # Notes below table
     if notes:
-        txBox = slide.shapes.add_textbox(Inches(1.0), table_top + Inches(0.5 * rows) + Inches(0.2), Inches(8.0), Inches(1.0))
+        txBox = slide.shapes.add_textbox(Inches(1.0), table_top + shape.height + Inches(0.2), Inches(8.0), Inches(1.0))
         tf = txBox.text_frame
         for note in notes:
             p = tf.add_paragraph()
@@ -155,10 +202,12 @@ def create_table_slide(prs, title, headers, data, notes=None):
             p.font.size = Pt(14)
             p.font.name = 'Times New Roman'
             p.font.italic = True
+    
+    return slide # Return slide in case we need to add more
 
 # --- Slides Generation (Step-by-Step) ---
 
-# Slide 1: Title Slide
+# Slide 1: Title Slide (Distinct Design, No Top-Right Logo)
 create_title_slide(
     prs, 
     "Prédiction de Conversion Trial-to-Paid :\nInsights Data-Driven pour Kolecto", 
@@ -208,67 +257,32 @@ add_content_slide(prs, "Méthodologie & Modèles", [
 ])
 
 # Slide 5: Overall Results Comparison (TABLE + Centered Image)
-# We will use a mixed approach manually here to allow TABLE + IMAGE
-slide_layout = prs.slide_layouts[5] # Title Only
-slide = prs.slides.add_slide(slide_layout)
-slide.shapes.title.text = "Comparaison Globale des Résultats"
-set_title_format(slide.shapes.title)
-
-# Table
-headers_res = ["Modèle", "ROC-AUC", "PR-AUC", "Accuracy", "Brier Score"]
-data_res = [
-    ["LightGBM (Vainqueur)", "0.790", "0.835", "72.3%", "0.193"],
-    ["GRU (RNN)", "0.713", "0.743", "65.1%", "0.217"],
-    ["Transformer", "0.711", "0.748", "66.3%", "0.211"],
-    ["Logistic Reg.", "0.684", "0.769", "65.1%", "0.229"],
-    ["XGBoost", "0.671", "0.772", "63.9%", "0.242"]
-]
-rows = len(data_res) + 1
-cols = len(headers_res)
-table_left = Inches(1.0)
-table_top = Inches(1.5)
-table_width = Inches(8.0)
-table_height = Inches(2.0)
-
-shape = slide.shapes.add_table(rows, cols, table_left, table_top, table_width, table_height)
-table = shape.table
-
-# Format Header
-for i, h in enumerate(headers_res):
-    cell = table.cell(0, i)
-    cell.text = h
-    cell.fill.solid()
-    cell.fill.fore_color.rgb = RGBColor(0, 51, 102)
-    cell.text_frame.paragraphs[0].font.color.rgb = RGBColor(255, 255, 255)
-    cell.text_frame.paragraphs[0].font.bold = True
-    cell.text_frame.paragraphs[0].font.name = 'Times New Roman'
-    cell.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
-
-# Format Data
-for r_idx, row in enumerate(data_res):
-    for c_idx, val in enumerate(row):
-        cell = table.cell(r_idx+1, c_idx)
-        cell.text = val
-        cell.text_frame.paragraphs[0].font.size = Pt(12)
-        cell.text_frame.paragraphs[0].font.name = 'Times New Roman'
-        cell.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
-
-# Centered Image below table
+# We handle the image manually here, but use create_table_slide for base
+slide_5 = create_table_slide(prs, "Comparaison Globale des Résultats", 
+    ["Modèle", "ROC-AUC", "PR-AUC", "Accuracy", "Brier Score"], 
+    [
+        ["LightGBM (Vainqueur)", "0.790", "0.835", "72.3%", "0.193"],
+        ["GRU (RNN)", "0.713", "0.743", "65.1%", "0.217"],
+        ["Transformer", "0.711", "0.748", "66.3%", "0.211"],
+        ["Logistic Reg.", "0.684", "0.769", "65.1%", "0.229"],
+        ["XGBoost", "0.671", "0.772", "63.9%", "0.242"]
+    ]
+)
+# Add Image manually to Slide 5
 if os.path.exists(IMG_COMPARISON):
     img_width = Inches(6.0)
     img_left = (SLIDE_WIDTH - img_width) / 2
-    img_top = table_top + table_height + Inches(0.5)
-    slide.shapes.add_picture(IMG_COMPARISON, img_left, img_top, width=img_width)
+    # Place below table manually
+    img_top = Inches(4.5) 
+    slide_5.shapes.add_picture(IMG_COMPARISON, img_left, img_top, width=img_width)
 
 
 # Slide 6: Optimization & Training Insights (Custom Layout)
-slide_layout = prs.slide_layouts[1] # Title and Content
+slide_layout = prs.slide_layouts[5] # Title Only
 slide = prs.slides.add_slide(slide_layout)
-slide.shapes.title.text = "Optimisation & Dynamique d'Entraînement"
-set_title_format(slide.shapes.title)
-body_shape = slide.placeholders[1]
-tf = body_shape.text_frame
-tf.clear()
+add_common_design(slide, "Optimisation & Dynamique d'Entraînement")
+
+# Content
 content_lines = [
     "LightGBM (Optuna) :",
     "   - Recherche efficace (50 essais).",
@@ -277,15 +291,22 @@ content_lines = [
     "   - GRU : Bonne baisse de loss training, légère instabilité en validation.",
     "   - Transformer : Signes d'overfitting (Train Loss << Val Loss)."
 ]
+left = Inches(0.5)
+top = Inches(1.5)
+width = Inches(9.0)
+height = Inches(2.0)
+txBox = slide.shapes.add_textbox(left, top, width, height)
+tf = txBox.text_frame
+tf.word_wrap = True
 for line in content_lines:
     p = tf.add_paragraph()
     p.text = line
-    p.level = 0
     p.font.size = Pt(16)
     p.font.name = 'Times New Roman'
+    p.space_after = Pt(5)
     if line.startswith("   -"):
         p.level = 1
-        p.text = line.replace("   -", "").strip()
+        p.text = line.replace("   -", "\u2022 ").strip()
 
 # Add Images (3 Plots)
 # 1. Optuna (Top Right)
@@ -323,7 +344,7 @@ add_content_slide(prs, "Impact Business & Recommandations", [
     "   - Déploiement : A/B Test des interventions pour mesurer l'uplift réel."
 ])
 
-# Slide 9: Limitations & Améliorations
+# Slide 9: Limitations & Improvements
 add_content_slide(prs, "Limitations & Améliorations", [
     "Limitations :",
     "   - Faible Volume de Données : ~416 essais limitent le potentiel du Deep Learning.",
@@ -334,7 +355,7 @@ add_content_slide(prs, "Limitations & Améliorations", [
     "   - Entraînement Continu : Réentraînement mensuel pour gérer le 'data drift'."
 ])
 
-# Slide 10: Conclusion & Prochaines Étapes
+# Slide 10: Conclusion & Next Steps
 add_content_slide(prs, "Conclusion & Prochaines Étapes", [
     "Résumé :",
     "   - Modèle robuste livré (LightGBM AUC 0.790).",
