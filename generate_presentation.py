@@ -170,16 +170,44 @@ add_content_slide(prs, "Overall Results Comparison", [
 
 # Slide 6: Optimization & Training Insights
 # "Shows methodological strength (tuning, monitoring overfit)"
-add_content_slide(prs, "Optimization & Training Insights", [
+slide_layout = prs.slide_layouts[1] # Title and Content
+slide = prs.slides.add_slide(slide_layout)
+slide.shapes.title.text = "Optimization & Training Insights"
+set_title_format(slide.shapes.title)
+body_shape = slide.placeholders[1]
+tf = body_shape.text_frame
+tf.clear()
+content_lines = [
     "LightGBM (Optuna):",
     "   - Efficient search (50 trials).",
     "   - Converged to robust params (n_est=318, lr=0.018).",
     "Deep Learning Dynamics:",
     "   - GRU: Steady loss decrease, slight validation instability.",
     "   - Transformer: Signs of overfitting (Train Loss << Val Loss).",
-    "   - Takeaway: Deep Learning needs more than 400 samples to outperform Trees.",
-    "   (See Optimization History ->)"
-], image_path=IMG_OPTUNA) 
+    "   - Takeaway: Deep Learning needs more than 400 samples to outperform Trees."
+]
+for line in content_lines:
+    p = tf.add_paragraph()
+    p.text = line
+    p.level = 0
+    p.font.size = Pt(16) # Slightly smaller to fit images
+    p.font.name = 'Arial'
+    if line.startswith("   -"):
+        p.level = 1
+        p.text = line.replace("   -", "").strip()
+
+# Add Images (Custom Layout)
+# 1. Optuna (Top Right)
+if os.path.exists(IMG_OPTUNA):
+    slide.shapes.add_picture(IMG_OPTUNA, Inches(6.0), Inches(1.5), height=Inches(2.5))
+
+# 2. GRU Loss (Bottom Left)
+if os.path.exists(IMG_GRU_LOSS):
+    slide.shapes.add_picture(IMG_GRU_LOSS, Inches(0.5), Inches(4.5), height=Inches(2.5))
+
+# 3. Transformer Loss (Bottom Right)
+if os.path.exists(IMG_TRANSFORMER_LOSS):
+    slide.shapes.add_picture(IMG_TRANSFORMER_LOSS, Inches(5.5), Inches(4.5), height=Inches(2.5)) 
 
 # Slide 7: Feature Importance & Insights
 # "Translates tech to business—Convincing for actionable value"
