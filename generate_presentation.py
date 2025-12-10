@@ -19,6 +19,8 @@ IMG_LOGO = os.path.join(IMG_DIR, "kolecto_logo.png")
 
 # Start Presentation
 prs = Presentation()
+SLIDE_WIDTH = prs.slide_width
+SLIDE_HEIGHT = prs.slide_height
 
 # --- Helper Functions ---
 def set_title_format(title_shape):
@@ -76,25 +78,73 @@ def add_content_slide(prs, title, content_lines, image_path=None):
             p.level = 2
             p.text = line.replace("       ->", "").strip()
 
-    # Image
+    # Image (Centered)
     if image_path and os.path.exists(image_path):
-        # Adjust layout for image
-        body_shape.width = Inches(5.0) 
-        left = Inches(5.5)
-        top = Inches(2.0)
-        height = Inches(4.5)
+        # Resize content to make room (top half)
+        body_shape.height = Inches(3.0)
         
-        # Check if it's the comparison plot (needs to be wider)
+        # Place image centered below content
+        img_height = Inches(3.5)
         if "comparison" in image_path:
-             height = Inches(3.5)
-             top = Inches(2.5)
+             img_height = Inches(3.0)
         
-        slide.shapes.add_picture(image_path, left, top, height=height)
+        # Calculate aspect ratio to center
+        # Assuming typical aspect ratio, but simply centering predefined width/height
+        img_left = (SLIDE_WIDTH - Inches(6.0)) / 2
+        img_top = Inches(4.0)
+        
+        slide.shapes.add_picture(image_path, img_left, img_top, width=Inches(6.0))
+
+def create_table_slide(prs, title, headers, data, notes=None):
+    slide_layout = prs.slide_layouts[5] # Title Only (allowing full custom table)
+    slide = prs.slides.add_slide(slide_layout)
+    
+    # Title
+    slide.shapes.title.text = title
+    set_title_format(slide.shapes.title)
+    
+    # Table Config
+    rows = len(data) + 1
+    cols = len(headers)
+    table_left = Inches(1.0)
+    table_top = Inches(1.5)
+    table_width = Inches(8.0)
+    table_height = Inches(0.5 * rows)
+    
+    shape = slide.shapes.add_table(rows, cols, table_left, table_top, table_width, table_height)
+    table = shape.table
+    
+    # Headers
+    for i, header in enumerate(headers):
+        cell = table.cell(0, i)
+        cell.text = header
+        cell.fill.solid()
+        cell.fill.fore_color.rgb = RGBColor(0, 51, 102) # Dark Blue header
+        cell.text_frame.paragraphs[0].font.color.rgb = RGBColor(255, 255, 255) # White text
+        cell.text_frame.paragraphs[0].font.bold = True
+        cell.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
+
+    # Data
+    for row_idx, row_data in enumerate(data):
+        for col_idx, item in enumerate(row_data):
+            cell = table.cell(row_idx + 1, col_idx)
+            cell.text = str(item)
+            cell.text_frame.paragraphs[0].font.size = Pt(12)
+            cell.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
+            
+    # Notes below table
+    if notes:
+        txBox = slide.shapes.add_textbox(Inches(1.0), table_top + Inches(0.5 * rows) + Inches(0.2), Inches(8.0), Inches(1.0))
+        tf = txBox.text_frame
+        for note in notes:
+            p = tf.add_paragraph()
+            p.text = note
+            p.font.size = Pt(14)
+            p.font.italic = True
 
 # --- Slides Generation (Step-by-Step) ---
 
 # Slide 1: Title Slide
-# "Sets a professional tone; Hooks with the problem"
 create_title_slide(
     prs, 
     "Predicting Trial-to-Paid Conversions:\nData-Driven Insights for Kolecto", 
@@ -104,7 +154,6 @@ create_title_slide(
 )
 
 # Slide 2: Business Context & Objectives
-# "Frames results as solving a real business need"
 add_content_slide(prs, "Business Context & Objectives", [
     "Context:",
     "   - Kolecto offers paid subscriptions with a 15-day trial.",
@@ -114,62 +163,89 @@ add_content_slide(prs, "Business Context & Objectives", [
     "   - Enable targeted Customer Experience (CX) actions.",
     "Objectives:",
     "   - Analyze differentiating factors (Converters vs Non-Converters).",
-    "   - Build ML model for conversion probability prediction.",
-    "Approach:",
-    "   - Usage Analysis (Activity signals) + Profile (Company info).",
-    "   - Focus on actionable insights, not just black-box predictions."
+    "   - Build ML model for conversion probability prediction."
 ])
 
-# Slide 3: Data Overview
-# "Builds credibility—shows you understood the data"
-add_content_slide(prs, "Data Overview", [
-    "Datasets:",
-    "   - daily_usage.csv (~11k rows): Activity logs (Transfers, Connections). Aggregated to per-trial summaries.",
-    "   - subscriptions.csv (~416 trials): Company info (Revenue, NAF). Filtered to exact 15-day trials.",
-    "Key Stats:",
-    "   - Total Samples: 416 complete trials (Filtered from ~500).",
-    "   - Conversion Rate: 60.7% (Imbalanced but manageable).",
-    "Preprocessing:",
-    "   - Merged Usage + Subscriptions on 'subscription_id'.",
-    "   - Handled Inactivity (NaN/Zero imputation for missing days).",
-    "   - Encoding: OneHot (Categorical) & Robust Scaling (Numerical)."
-])
+# Slide 3: Data Overview (TABLE)
+headers_data = ["Dataset", "Size", "Description", "Preprocessing"]
+content_data = [
+    ["Daily Usage", "~11k rows", "Activity logs (Transfers, Connections)", "Aggregated (Sum/Mean/Max/Std)"],
+    ["Subscriptions", "416 trials", "Company Profile (Revenue, NAF)", "Merged, Imputed, OneHot Encoded"]
+]
+notes_data = [
+    "Key Stats: Total Samples: 416 complete trials.",
+    "Conversion Rate: 60.7% (Imbalanced but manageable)."
+]
+create_table_slide(prs, "Data Overview & Preprocessing", headers_data, content_data, notes=notes_data)
+
 
 # Slide 4: Methodology & Models
-# "Highlights rigor (Optuna, multiple models)"
 add_content_slide(prs, "Methodology & Models", [
     "Strategy:",
-    "   - Tabular Features (157 dims): Sum/Mean/Max/Std of daily activities.",
-    "   - Sequential Data (15 days): Time-series for Deep Learning.",
+    "   - Tabular Features (157 dims) for Tree-based models.",
+    "   - Sequential Data (15 days) for Deep Learning.",
     "Models Trained:",
     "   - Logistic Regression (Baseline).",
     "   - XGBoost & LightGBM (Gradient Boosting with Optuna tuning).",
     "   - GRU & Transformer (Sequential modeling for temporal signals).",
     "Evaluation Metrics:",
     "   - ROC-AUC: Discrimination capability (Primary Metric).",
-    "   - PR-AUC: Precision-Recall (Critical for imbalance).",
-    "   - Brier Score: Probability calibration accuracy."
+    "   - PR-AUC: Precision-Recall (Critical for imbalance)."
 ])
 
-# Slide 5: Overall Results Comparison
-# "Visual proof of superiority—Convincing with data"
-add_content_slide(prs, "Overall Results Comparison", [
-    "Winner: LightGBM",
-    "   - ROC-AUC: 0.790 (Best Discrimination)",
-    "   - PR-AUC: 0.835 | Accuracy: 72.3%",
-    "   - Brier: 0.193 (Best Calibration)",
-    "   - Why? Handles mixed features/sparsity best on small data.",
-    "Runner Up: GRU (RNN)",
-    "   - ROC-AUC: 0.713. Captures temporal patterns well.",
-    "Baselines:",
-    "   - Transformer (0.711) - Comparable to GRU.",
-    "   - Logistic Regression (0.684) - Limited linearity.",
-    "Conclusion: LightGBM is robust, fast, and most accurate.",
-    "   (See Bar Charts ->)"
-], image_path=IMG_COMPARISON)
+# Slide 5: Overall Results Comparison (TABLE + Centered Image)
+# We will use a mixed approach manually here to allow TABLE + IMAGE
+slide_layout = prs.slide_layouts[5] # Title Only
+slide = prs.slides.add_slide(slide_layout)
+slide.shapes.title.text = "Overall Results Comparison"
+set_title_format(slide.shapes.title)
 
-# Slide 6: Optimization & Training Insights
-# "Shows methodological strength (tuning, monitoring overfit)"
+# Table
+headers_res = ["Model", "ROC-AUC", "PR-AUC", "Accuracy", "Brier Score"]
+data_res = [
+    ["LightGBM (Winner)", "0.790", "0.835", "72.3%", "0.193"],
+    ["GRU (RNN)", "0.713", "0.743", "65.1%", "0.217"],
+    ["Transformer", "0.711", "0.748", "66.3%", "0.211"],
+    ["Logistic Reg.", "0.684", "0.769", "65.1%", "0.229"],
+    ["XGBoost", "0.671", "0.772", "63.9%", "0.242"]
+]
+rows = len(data_res) + 1
+cols = len(headers_res)
+table_left = Inches(1.0)
+table_top = Inches(1.5)
+table_width = Inches(8.0)
+table_height = Inches(2.0)
+
+shape = slide.shapes.add_table(rows, cols, table_left, table_top, table_width, table_height)
+table = shape.table
+
+# Format Header
+for i, h in enumerate(headers_res):
+    cell = table.cell(0, i)
+    cell.text = h
+    cell.fill.solid()
+    cell.fill.fore_color.rgb = RGBColor(0, 51, 102)
+    cell.text_frame.paragraphs[0].font.color.rgb = RGBColor(255, 255, 255)
+    cell.text_frame.paragraphs[0].font.bold = True
+    cell.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
+
+# Format Data
+for r_idx, row in enumerate(data_res):
+    for c_idx, val in enumerate(row):
+        cell = table.cell(r_idx+1, c_idx)
+        cell.text = val
+        cell.text_frame.paragraphs[0].font.size = Pt(12)
+        cell.text_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
+
+# Centered Image below table
+if os.path.exists(IMG_COMPARISON):
+    img_width = Inches(6.0)
+    img_left = (SLIDE_WIDTH - img_width) / 2
+    img_top = table_top + table_height + Inches(0.5)
+    slide.shapes.add_picture(IMG_COMPARISON, img_left, img_top, width=img_width)
+
+
+# Slide 6: Optimization & Training Insights (Custom Layout)
 slide_layout = prs.slide_layouts[1] # Title and Content
 slide = prs.slides.add_slide(slide_layout)
 slide.shapes.title.text = "Optimization & Training Insights"
@@ -183,20 +259,19 @@ content_lines = [
     "   - Converged to robust params (n_est=318, lr=0.018).",
     "Deep Learning Dynamics:",
     "   - GRU: Steady loss decrease, slight validation instability.",
-    "   - Transformer: Signs of overfitting (Train Loss << Val Loss).",
-    "   - Takeaway: Deep Learning needs more than 400 samples to outperform Trees."
+    "   - Transformer: Signs of overfitting (Train Loss << Val Loss)."
 ]
 for line in content_lines:
     p = tf.add_paragraph()
     p.text = line
     p.level = 0
-    p.font.size = Pt(16) # Slightly smaller to fit images
+    p.font.size = Pt(16)
     p.font.name = 'Arial'
     if line.startswith("   -"):
         p.level = 1
         p.text = line.replace("   -", "").strip()
 
-# Add Images (Custom Layout)
+# Add Images (3 Plots)
 # 1. Optuna (Top Right)
 if os.path.exists(IMG_OPTUNA):
     slide.shapes.add_picture(IMG_OPTUNA, Inches(6.0), Inches(1.5), height=Inches(2.5))
@@ -209,21 +284,18 @@ if os.path.exists(IMG_GRU_LOSS):
 if os.path.exists(IMG_TRANSFORMER_LOSS):
     slide.shapes.add_picture(IMG_TRANSFORMER_LOSS, Inches(5.5), Inches(4.5), height=Inches(2.5)) 
 
-# Slide 7: Feature Importance & Insights
-# "Translates tech to business—Convincing for actionable value"
+# Slide 7: Feature Importance & Insights (Centered Image)
 add_content_slide(prs, "Feature Importance & Insights", [
     "Top Predictors:",
     "   - company_age: Older/stable firms convert more.",
     "   - naf_code: Specific industries have higher affinity.",
-    "   - nb_client_invoices_created_sum: Active usage is the #1 signal.",
+    "   - nb_client_invoices_created_sum: Usage (Invoicing) is the #1 signal.",
     "Actionable Insights:",
     "   - Activation Matters: Early usage (Day 1-3) is critical.",
-    "   - 'Low Activity' Alert: < 2 connections by Day 3 = 3x Churn Risk.",
-    "   - Targeting: Focus CX on TPEs with low early activity and high churn prob."
+    "   - Targeting: Focus CX on TPEs with low early activity."
 ], image_path=IMG_XGB_IMP)
 
 # Slide 8: Business Impact & Recommendations
-# "Quantifies value—Highly convincing for hiring"
 add_content_slide(prs, "Business Impact & Recommendations", [
     "Estimated Impact:",
     "   - Target: ~400 trials/month.",
@@ -236,7 +308,6 @@ add_content_slide(prs, "Business Impact & Recommendations", [
 ])
 
 # Slide 9: Limitations & Improvements
-# "Shows self-awareness—Balanced and professional"
 add_content_slide(prs, "Limitations & Improvements", [
     "Limitations:",
     "   - Small Dataset: ~416 trials limits Deep Learning potential.",
@@ -248,7 +319,6 @@ add_content_slide(prs, "Limitations & Improvements", [
 ])
 
 # Slide 10: Conclusion & Next Steps
-# "Strong close—Reiterates impact"
 add_content_slide(prs, "Conclusion & Next Steps", [
     "Summary:",
     "   - Delivered robust model (LightGBM AUC 0.790).",
@@ -256,9 +326,7 @@ add_content_slide(prs, "Conclusion & Next Steps", [
     "Next Steps:",
     "   1. Deploy Scoring API (Containerized).",
     "   2. Launch A/B Test for CX actions.",
-    "   3. Monitor Performance (MLflow) & Collect more data.",
-    " ",
-    "Thank You! Questions?"
+    "   3. Monitor Performance (MLflow) & Collect more data."
 ])
 
 # Save
