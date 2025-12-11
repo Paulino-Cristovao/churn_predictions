@@ -210,7 +210,7 @@ def create_table_slide(prs, title, headers, data, notes=None):
 # Slide 1: Title Slide (Distinct Design, No Top-Right Logo)
 create_title_slide(
     prs, 
-    "Prédiction de Conversion Trial-to-Paid :\nInsights Data-Driven pour Kolecto", 
+    "Prédiction de Conversion Trial-to-Paid :\nInsights Data-Driven pour Notre Client", 
     "Améliorer le taux de conversion de ~60% via l'analyse des signaux précurseurs et le Machine Learning",
     f"Antigravity Agent – {datetime.date.today()}",
     logo_path=IMG_LOGO
@@ -219,7 +219,7 @@ create_title_slide(
 # Slide 2: Business Context & Objectives
 add_content_slide(prs, "Contexte Business & Objectifs", [
     "Contexte :",
-    "   - Kolecto propose un essai gratuit de 15 jours convertissant en abonnement payant.",
+    "   - Le client propose un essai gratuit de 15 jours convertissant en abonnement payant.",
     "   - Taux de conversion actuel : ~60% (Satisfaisant mais perfectible).",
     "Challenge :",
     "   - Identifier tôt les signaux précurseurs (succès vs désabonnement).",
