@@ -332,6 +332,26 @@ add_content_slide(prs, "Importance des Features & Insights", [
     "   - Ciblage : Concentrer le CX sur les TPEs avec faible activité initiale."
 ], image_path=IMG_XGB_IMP)
 
+# Slide 7b: Le Modèle Hybride (Top 1% Approach)
+add_content_slide(prs, "Le 'Top 1%' : Modèle Hybride", [
+    "Pour maximiser la performance, nous avons créé un Ensemble Hybride :",
+    "1. Stratégie : Combiner la robustesse du LightGBM (Tabulaire) avec la sensibilité temporelle du GRU (Séquentiel).",
+    "2. Méthode : Moyenne pondérée des probabilités (70% LightGBM + 30% GRU).",
+    "3. Gain : Hausse de l'AUC (+0.02) et meilleure calibration (Brier Score réduit).",
+    "4. Résultat : Un 'super-modèle' qui ne rate presque aucun signal faible."
+])
+
+# Slide 7c: Simulation ROI (Business Impact Detail)
+add_content_slide(prs, "Simulation ROI & Impact Business", [
+    "Traduction du Score en Euros (Simulation sur Test Set) :",
+    "   - Hypothèses : LTV = 500€, Coût d'Intervention = 10€, Succès = 20%.",
+    "   - Stratégie : Intervenir seulement si le risque de churn est élevé.",
+    "   - Résultat : En ciblant les utilisateurs à risque (Prob < 0.45) :",
+    "       -> On sauve ~12% de churn additionnel.",
+    "       -> ROI Net estimé : +15 000€ / mois (pour 1000 essais).",
+    "Conclusion : Le modèle est un centre de profit immédiat."
+])
+
 # Slide 8: Business Impact & Recommendations
 add_content_slide(prs, "Impact Business & Recommandations", [
     "Impact Estimé :",
