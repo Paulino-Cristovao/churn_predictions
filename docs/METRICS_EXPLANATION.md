@@ -1,6 +1,6 @@
 # Model Evaluation Metrics Explanation
 
-This document explains the key performance metrics used in the Kolecto Churn Prediction project, structured to help you choose the right tool for the job.
+This document explains the key performance metrics used in the SaaS Churn Prediction project, structured to help you choose the right tool for the job.
 
 ## 1. Accuracy
 *   **Definition**: The percentage of predictions that are correct (both True Positives and True Negatives).
@@ -21,7 +21,7 @@ This document explains the key performance metrics used in the Kolecto Churn Pre
 *   **Positive Aspects**: Minimizes **False Negatives**. Ensures we don't miss at-risk customers.
 *   **Negative Aspects**: Predicting "Churn" for everyone gives 100% recall but implies many False Positives (spamming safe customers).
 *   **When to Use**: When the cost of missing a positive case is high (e.g., losing a high-value customer).
-*   **Why we used it**: Critical for Kolecto because acquiring a new customer is harder than saving an existing one; we want to catch as many potential churners as possible.
+*   **Why we used it**: Critical for this project because acquiring a new customer is harder than saving an existing one; we want to catch as many potential churners as possible.
 
 ## 4. F1 Score
 *   **Definition**: The harmonic mean of Precision and Recall. It provides a single score that balances the two.

@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "churn-predictions"
 version = "1.0.0"
-description = "Machine learning models for predicting trial-to-paid conversion (Kolecto case study)"
+description = "Machine learning models for predicting trial-to-paid conversion (Client case study)"
 authors = ["Paulino Cristovao"]
 readme = "README.md"
 

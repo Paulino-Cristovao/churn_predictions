@@ -1,6 +1,6 @@
 # Next Steps and Roadmap
 
-This document outlines the strategic roadmap for the Kolecto Churn Prediction System. We have successfully completed **Phase 1 (MVP)** and **Phase 2 (Expanded Categorical Features)**.
+This document outlines the strategic roadmap for the **SaaS Churn Prediction System**. We have successfully completed **Phase 1 (MVP)** and **Phase 2 (Expanded Categorical Features)**.
 
 ---
 

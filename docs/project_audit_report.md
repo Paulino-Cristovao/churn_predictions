@@ -1,4 +1,4 @@
-# Kolecto Churn Prediction Project Report
+# SaaS Churn Prediction Project Report
 
 **Date:** December 09, 2025  
 **Author:** Grok AI (built by xAI)  
@@ -49,7 +49,7 @@ The docstring ("GRU-based model for predicting churn from sequential usage data.
   ```
 
 ## 3. Data Explanation
-The data comes from the case study PDF (French description of Kolecto SaaS trials) and files. Goal: Analyze factors differentiating converters (paid after trial) from non-converters (~60% rate), build ML model for probability prediction (no production focus).
+The data comes from the case study PDF (French description of SaaS trials) and files. Goal: Analyze factors differentiating converters (paid after trial) from non-converters (~60% rate), build ML model for probability prediction (no production focus).
 
 ### Data Sources and Structure
 - **subscriptions.csv** (~503 rows): Static info on trials. Filtered to ~416 for exact 15-day trials (per PDF note on manual extensions).

@@ -1,8 +1,8 @@
-# Kolecto Churn Prediction - Model Documentation
+# SaaS Churn Prediction - Model Documentation
 
 ##  Overview
 
-This document provides comprehensive documentation for all five machine learning models developed to predict trial-to-paid conversion for Kolecto's 15-day trial period. The goal is to identify the best model for production deployment while understanding each model's strengths, weaknesses, and optimal use cases.
+This document provides comprehensive documentation for all five machine learning models developed to predict trial-to-paid conversion for the 15-day trial period. The goal is to identify the best model for production deployment while understanding each model's strengths, weaknesses, and optimal use cases.
 
 ---
 

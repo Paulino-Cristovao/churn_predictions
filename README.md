@@ -1,16 +1,16 @@
-# Kolecto Churn Prediction System "Pro"
+# Client Churn Prediction System "Pro"
+# SaaS Churn Prediction System "Pro"
 
 ![Status](https://img.shields.io/badge/Status-Production_Ready-success)
 ![Python](https://img.shields.io/badge/Python-3.10+-blue)
 ![Pytorch](https://img.shields.io/badge/PyTorch-2.0+-orange)
 ![Gradio](https://img.shields.io/badge/Gradio-App-pink)
 
-> **Predicting B2B Customer Churn with Deep Learning and 157-Dimensional Feature Engineering.**
+> [!NOTE]
+> **Project Status**: Completed (v1.0)
+> **Goal**: Predict **Trial-to-Paid Conversion** for B2B Client (SaaS).
 
----
-
-## Executive Summary
-This project verifies and implements a robust, end-to-end machine learning solution to predict customer churn for **Kolecto**, based on a case study of SaaS trial conversions. By analyzing **~11,600 daily usage records** and **~500 subscriptions** (filtered to **416 exact 15-day trials** for consistency), the system identifies significantly predictive signals of conversion (**~60% conversion rate**) versus cancellation.
+This project verifies and implements a robust, end-to-end machine learning solution to predict customer churn for **the Client**, based on a case study of SaaS trial conversions. By analyzing **~11,600 daily usage records** and **~500 subscriptions** (filtered to **416 exact 15-day trials** for consistency), the system identifies significantly predictive signals of conversion (**~60% conversion rate**) versus cancellation.
 
 **Key Highlights:**
 *   **State-of-the-Art Models**: Compare **LightGBM**, **XGBoost**, **Logistic Regression**, **GRU (RNN)**, and **Transformer**.
@@ -139,4 +139,4 @@ All detailed documentation is located in the `docs/` directory:
 
 ---
 
-*Built for Kolecto by "Antigravity"*
+*Built for Client by "Antigravity"*

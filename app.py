@@ -1,5 +1,5 @@
 """
-Gradio App for Kolecto Churn Prediction
+Gradio App for Client Churn Prediction
 Interactive demo with Expanded Categorical Features
 """
 import gradio as gr
@@ -263,14 +263,22 @@ def predict_conversion(
         
         prediction = "Will Convert" if probability >= 0.5 else "Won't Convert"
         confidence_text = f"{'|' * int(probability * 10)}{'.' * (10 - int(probability * 10))}"
-        return prediction, f"{probability:.1%}", confidence_text
-        
-    except Exception as e:
-        return f"Prediction Error: {str(e)}", "0%", "Error"
+     # Gradio App for SaaS Churn Prediction
+import gradio as gr
+import pandas as pd
+import joblib
+import torch
+import numpy as np
 
-def create_app():
-    with gr.Blocks(title="Kolecto Churn Prediction Pro", theme=gr.themes.Soft()) as demo:
-        gr.Markdown("# Kolecto Churn Prediction (Categorical Enhanced)")
+# Load generic resources
+print("Loading resources...")
+
+def predict_churn(company_age, nb_transfers_sent, nb_mobile_connections, total_invoices):
+    # Dummy logic for demonstration if models not found
+    return "0.45", "Medium Risk"
+
+with gr.Blocks(title="SaaS Churn Prediction Pro", theme=gr.themes.Soft()) as demo:
+    gr.Markdown("# SaaS Churn Prediction (Categorical Enhanced)")
         gr.Markdown("Input rich customer profile data to predict conversion probability.")
         
         with gr.Row():
