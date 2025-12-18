@@ -52,3 +52,8 @@ This document outlines the strategic roadmap for the **SaaS Churn Prediction Sys
 
 ### 2. Segment Analysis
 *   Analyze error rates by segment. Does the model underperform on "Large Enterprise" vs "Freelancers"?
+
+### 3. Hybrid Predictive-Causal Model
+*   **Strategy**: Use the Causal Uplift score as a *feature* in the main LightGBM model.
+*   **Goal**: Combine predictive accuracy (risk of churn) with causal sensitivity (persuadability).
+*   **Expected Impact**: +0.02-0.05 AUC and clearer prioritization for CX teams (Targeting high-risk AND high-uplift users).

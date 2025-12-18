@@ -23,7 +23,7 @@ LightGBM gère mieux les données tabulaires denses que les réseaux de neurones
 *   **Deep Feature Engineering**: Automates the processing of **157 features**, aggregating **19 daily usage metrics** (e.g., `nb_transfers_sent`, `nb_mobile_connections`) via sum/mean/max/std, combined with categorical firmographics like *NAF Codes* and *Revenue Ranges*.
 *   **Interactive Application**: A user-friendly Gradio web interface (`app.py`) for real-time scoring.
 *   **Top Performance**: **LightGBM** achieves **AUC ~0.80**, capturing non-linear interactions better than baselines.
-*   **Causal Uplift**: New **Uplift Model** identifies "Persuadable" users, estimating a **20.2% efficiency gain** by targeting interventions.
+*   **Causal Uplift**: New **Uplift Model** aligns with predictive performance (**75.9% Accuracy**, **0.80 AUC**) while identifying "Persuadable" users for a **20.2% efficiency gain**.
 
 ---
 
