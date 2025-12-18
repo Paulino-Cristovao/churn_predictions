@@ -1,0 +1,14 @@
+{
+    "ate": -0.20158358145569824,
+    "segmentation": {
+        "Lost Cause": 0.7228915662650602,
+        "Sleeping Dog": 0.14457831325301204,
+        "Do-not-disturb": 0.12048192771084337,
+        "Persuadable": 0.012048192771084338
+    },
+    "description": "Final Causal Uplift Model Analysis",
+    "ate_conf_interval": [
+        -0.316433478089681,
+        -0.0867336848217155
+    ]
+}

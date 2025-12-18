@@ -9,6 +9,8 @@ This document outlines the strategic roadmap for the **SaaS Churn Prediction Sys
 *   **Model Variety**: Evaluated Linear, Tree-based (XGB/LGBM), and Deep Learning (GRU/Transformer) architectures.
 *   **Optimization**: Tuned LightGBM to achieve top-tier performance (AUC 0.82).
 *   **Interactive App**: Built a fully dynamic `app.py` for real-time inference.
+*   **Causal Uplift**: Implemented DoubleML and T-Learner to target "Persuadable" users.
+*   **Project Polish**: Cleaned codebase, renamed notebooks (01-08), and standardized documentation.
 
 ---
 

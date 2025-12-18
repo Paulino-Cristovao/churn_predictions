@@ -23,6 +23,7 @@ LightGBM gère mieux les données tabulaires denses que les réseaux de neurones
 *   **Deep Feature Engineering**: Automates the processing of **157 features**, aggregating **19 daily usage metrics** (e.g., `nb_transfers_sent`, `nb_mobile_connections`) via sum/mean/max/std, combined with categorical firmographics like *NAF Codes* and *Revenue Ranges*.
 *   **Interactive Application**: A user-friendly Gradio web interface (`app.py`) for real-time scoring.
 *   **Top Performance**: **LightGBM** achieves **AUC ~0.80**, capturing non-linear interactions better than baselines.
+*   **Causal Uplift**: New **Uplift Model** identifies "Persuadable" users, estimating a **20.2% efficiency gain** by targeting interventions.
 
 ---
 
@@ -124,7 +125,8 @@ All detailed documentation is located in the `docs/` directory:
 ├── notebooks/              # Jupyter Notebooks (Data, Training, Evaluation)
 │   ├── 01_data_processing.ipynb
 │   ├── ...
-│   └── 07_model_comparison.ipynb
+│   ├── 07_uplift_causal_model.ipynb
+│   └── 08_model_comparison.ipynb
 ├── models/                 # PyTorch Model Definitions (GRU/Transformer)
 ├── config/                 # Configuration Files
 ├── docs/                   # Documentation

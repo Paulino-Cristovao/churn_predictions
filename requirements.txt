@@ -34,4 +34,5 @@ tqdm
 gradio>=4.0.0
 shap
 optuna
+doubleml>=0.7.0
 python-pptx>=0.6.21
