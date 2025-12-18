@@ -1,4 +1,5 @@
 {
+    "model": "Causal Uplift",
     "ate": -0.20158358145569824,
     "segmentation": {
         "Lost Cause": 0.7228915662650602,
